@@ -39,13 +39,16 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
+    # rest framework
+    "rest_framework",
+    "rest_framework.authtoken",
+
     # project apps
     "apps.core",
     "apps.users",
-    "apps.auth",
+#    "apps.auth",
     "apps.job_applications",
     "apps.flat_applications",
-    "apps.auth",
 
     # third party apps
 ]
@@ -81,13 +84,26 @@ TEMPLATES = [
 WSGI_APPLICATION = "lazyreload.wsgi.application"
 
 
+
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
+# configure postgres database
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'lazyapp',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': '127.0.0.1', # host in development stage
+        'PORT': '5432'
     }
 }
 
@@ -132,3 +148,14 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Authentication with Rest Framework
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES':[
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+
+    ]
+}
