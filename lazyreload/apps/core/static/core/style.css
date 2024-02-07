@@ -1,0 +1,259 @@
+/*---------------- File Name: style.css ----------------------*/
+
+
+/*------------------ import Fonts ---------------------*/
+
+@import url('https://fonts.googleapis.com/css?family=Rajdhani:300,400,500,600,700');
+@import url('https://fonts.googleapis.com/css?family=Poppins:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i');
+@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Courgette&display=swap');
+
+/*****---------------------------------------- 1) font-family: 'Rajdhani', sans-serif;
+ 2) font-family: 'Poppins', sans-serif;
+ ----------------------------------------*****/
+
+
+/*-------------------- import Files ---------------------*/
+
+@import url(animate.min.css);
+@import url(normalize.css);
+@import url(icomoon.css);
+@import url(font-awesome.min.css);
+@import url(meanmenu.css);
+@import url(owl.carousel.min.css);
+@import url(swiper.min.css);
+@import url(slick.css);
+@import url(jquery.fancybox.min.css);
+@import url(jquery-ui.css);
+@import url(nice-select.css);
+
+
+/*-------------------- LOGIN STYLE-------------------------*/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+body {
+  background: #8eb9d6;
+  height: 100vh;
+}
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 420px;
+  width: 100%;
+  height: 400px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+}
+.center h1 {
+  text-align: center;
+  padding: 20px 0;
+  border-bottom: 1px solid silver;
+}
+.center form {
+  padding: 0 40px;
+  box-sizing: border-box;
+}
+form .txt_field {
+  position: relative;
+  border-bottom: 2px solid #adadad;
+  margin: 30px 0;
+}
+.txt_field input {
+  width: 100%;
+  padding: 0 5px;
+  height: 40px;
+  font-size: 16px;
+  border: none;
+  background: none;
+  outline: none;
+}
+.txt_field label {
+  position: absolute;
+  top: 50%;
+  left: 5px;
+  color: #adadad;
+  transform: translateY(-50%);
+  font-size: 16px;
+  pointer-events: none;
+  transition: 0.5s;
+}
+.txt_field span::before {
+  content: "";
+  position: absolute;
+  top: 40px;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background: #2691d9;
+  transition: 0.5s;
+}
+.txt_field input:focus ~ label,
+.txt_field input:valid ~ label {
+  top: -5px;
+  color: #2691d9;
+}
+.txt_field input:focus ~ span::before,
+.txt_field input:valid ~ span::before {
+  width: 100%;
+}
+
+.login-button {
+  background-color: #2691d9;
+  color: white; 
+  padding: 10px 20px; 
+  border: none; 
+  border-radius: 5px; 
+  cursor: pointer; 
+  margin: 0 auto;
+  display: block;
+}
+
+input[type="submit"] {
+  width: 100%;
+  height: 50px;
+  background: #2691d9;
+  border-radius: 25px;
+  font-size: 18px;
+  color: #e9f4fb;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  transition: 0.5s;
+  border: none;
+}
+input[type="submit"]:hover {
+  border-color: #2691d9;
+}
+.signup_link {
+  margin: 30px 0;
+  text-align: center;
+  font-size: 16px;
+  color: #666666;
+}
+.signup_link a {
+  color: #2691d9;
+  text-decoration: none;
+}
+.signup_link a:hover {
+  text-decoration: underline;
+}
+
+/* END OF LOGIN STYLE */
+
+
+
+/*----------------------------------- skeleton --------------------------------------------*/
+
+
+
+.loader_bg {
+     position: fixed;
+     z-index: 9999999;
+     background: #fff;
+     width: 100%;
+     height: 100%;
+}
+
+.loader {
+     height: 100%;
+     width: 100%;
+     position: absolute;
+     left: 0;
+     top: 0;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+}
+
+.loader img {
+     width: 280px;
+}
+
+
+/*-- header --*/
+
+.header {
+width: 100%;
+background:#fff0;
+height: 107px;
+padding: 27px 30px;
+position: absolute;
+z-index: 999;
+}
+
+.navigation.navbar {
+     float: right;
+     padding: 0;
+}
+
+.navigation.navbar-dark .navbar-nav {
+     display: flex;
+     align-items: center;
+     text-decoration: none;
+ }
+
+.navigation.navbar-dark .navbar-nav .nav-link {
+     padding: 15px 30px;
+     color: #2b2b2b;
+     font-size: 17px;
+     line-height: 20px;
+     font-weight: 400;
+     border-radius: 30px;
+     text-transform: uppercase;
+     text-decoration: none;
+}
+
+.navigation.navbar-dark .navbar-nav .nav-link:focus,
+.navigation.navbar-dark .navbar-nav .nav-link:hover {
+     color: #fff;
+     background: #f0390f;
+     text-decoration: none;
+}
+
+.navigation.navbar-dark .navbar-nav .active>.nav-link,
+.navigation.navbar-dark .navbar-nav .nav-link.active,
+.navigation.navbar-dark .navbar-nav .nav-link.show,
+.navigation.navbar-dark .navbar-nav .show>.nav-link {
+     color: #fff;
+     background: #f0390f;
+     text-decoration: none;
+}
+
+.di_no {
+     display: none;
+}
+
+/* ul.email {
+     padding-top: 1px;
+     display: flex;
+     align-items: center;
+     justify-content: flex-end;
+     flex-wrap: wrap;
+}
+
+ul.email li {
+     padding: 0px 30px;
+}
+
+ul.email li:nth-child(2) {
+     padding-right: 0;
+}
+
+ul.email li a {
+     font-size: 29px;
+}
+
+ul.email li i {
+     color: #5e5d5e;
+     font-size: 19px;
+} */
+
+
+/** end header **/

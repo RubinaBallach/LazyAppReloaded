@@ -26,15 +26,14 @@ class LazyJobApplication(models.Model):
     profile_id = models.ForeignKey(
         "users.LazyUserProfile",
         on_delete=models.CASCADE)
-    add_link = models.URLField(max_length=250, blank=False)
+    ad_link = models.URLField(max_length=250, blank=False)
     # information to be scraped from job ad
     company_id = models.ForeignKey(
         Company,
-        on_delete=models.CASCADE,
-        blank=False)
-    job_title = models.CharField(max_length=60, blank=False)
+        on_delete=models.CASCADE)
+    job_title = models.CharField(max_length=250, blank=False)
     job_ad_text = models.TextField()
-    #additional manually filled information
+    # additional manually filled information
     recruiter_name = models.CharField(max_length=60, blank=True)
     recruiter_mail = models.EmailField(max_length=60, blank=True)
     recruiter_phone = models.CharField(max_length=60, blank=True)
@@ -47,7 +46,7 @@ class LazyJobApplication(models.Model):
         ("temp", "Temporary"),
     ]
     job_type = models.CharField(
-        max_length=20,
+        max_length=60,
         choices=JOB_TYPE_CHOICES,
         default="full"
         )
@@ -70,6 +69,7 @@ class LazyJobApplication(models.Model):
     
 
     job_type = models.CharField(max_length=50, choices=JOB_TYPE_CHOICES)
+    cover_letter = models.TextField(blank=True)
     status = models.CharField(max_length=50, choices=APPLICANT_STATUS_CHOICES, default="pending")
     application_send_date = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=APPLICANT_STATUS_CHOICES, default="apply")
@@ -78,4 +78,5 @@ class LazyJobApplication(models.Model):
     start_date = models.DateField(blank=True, null=True)
     notes = models.TextField(blank=True)
     application_costs = models.FloatField(blank=True, null=True)
+
 
