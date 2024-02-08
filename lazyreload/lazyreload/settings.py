@@ -68,7 +68,7 @@ ROOT_URLCONF = "lazyreload.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        'DIRS': [BASE_DIR / 'apps/auth/templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
