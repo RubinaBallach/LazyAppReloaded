@@ -3,7 +3,6 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 import uuid
 
 
-
 # Create your models here.
 
 class LazyUserManager(BaseUserManager):
@@ -61,12 +60,12 @@ class LazyUser(AbstractBaseUser):
     first_name = models.CharField(max_length=60)
     last_name = models.CharField(max_length=60)
 
-    USE_CASE_CHOICES = (
-        ("Job Applications", "Job Applications"),
-        ("Flat Applications", "Flat Applications"),
-        ("Job&Flat Applications", "Job&Flat Applications")
-    )
-    use_case = models.CharField(max_length=60, choices=USE_CASE_CHOICES, default="Job&Flat Applications")
+    USE_CASE_CHOICES = {
+        "Job":"Job Applications",
+        "Flat":"Flat Applications",
+        "both":"Job&Flat Applications"
+    }
+    use_case = models.CharField(max_length=60, choices=USE_CASE_CHOICES, default="both")
 
     # for login with username and password
     USERNAME_FIELD = "username"
@@ -80,3 +79,5 @@ class LazyUser(AbstractBaseUser):
         return f"{self.first_name} {self.last_name}"
     
 
+class LazyApplicants(models.Model):
+    user_id = models.ForeignKey()

@@ -6,7 +6,7 @@ class LazyUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LazyUser
-        fields(
+        fields = [
             'id',
             'email',
             'username',
@@ -15,4 +15,4 @@ class LazyUserSerializer(serializers.ModelSerializer):
             'created_at',
             'last_login',
             'is_active'
-        )
+        ]
