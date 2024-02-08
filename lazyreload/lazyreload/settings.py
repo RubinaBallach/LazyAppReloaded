@@ -42,10 +42,9 @@ INSTALLED_APPS = [
     # project apps
     "apps.core",
     "apps.users",
-    "apps.auth",
+    #"apps.auth",
     "apps.job_applications",
     "apps.flat_applications",
-    "apps.auth",
 
     # third party apps
 ]
@@ -65,7 +64,7 @@ ROOT_URLCONF = "lazyreload.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        'DIRS': [BASE_DIR / 'apps/auth/templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
