@@ -1,6 +1,6 @@
 from typing import Any, Dict
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from ..user.serializers import LazyUserSerializer
+from ..users.serializers import LazyUserSerializer
 
 # from rest_framework import serializers
 # from .models import CustomUser
