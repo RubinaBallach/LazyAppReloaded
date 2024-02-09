@@ -15,4 +15,4 @@ class LazyUserSerializer(serializers.ModelSerializer):
             'created_at',
             'last_login',
             'is_active'
-
+        ]

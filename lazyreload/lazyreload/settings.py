@@ -9,9 +9,13 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os  # needed to set environment variables like postgres password
+from dotenv import load_dotenv
 from pathlib import Path
 from datetime import timedelta
+
+load_dotenv()
+POSTGRES_PW = os.getenv("POSTGRES_PW")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -98,14 +102,15 @@ WSGI_APPLICATION = "lazyreload.wsgi.application"
 #     }
 # }
 
+
 # configure postgres database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'lazyapp',
         'USER': 'postgres',
-        'PASSWORD': 'doublek',
-        'HOST': '127.0.0.1', # host in development stage
+        'PASSWORD': POSTGRES_PW,  # as everyone has a different password set this in .env file
+        'HOST': '127.0.0.1',  # host in development stage
         'PORT': '5432'
     }
 }

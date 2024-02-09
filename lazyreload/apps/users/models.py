@@ -72,5 +72,5 @@ class LazyUser(AbstractBaseUser):
         return f"{self.first_name} {self.last_name}"
     
 
-class LazyApplicants(models.Model):
-    user_id = models.ForeignKey()
+# class LazyApplicants(models.Model):
+ #   user_id = models.ForeignKey()
