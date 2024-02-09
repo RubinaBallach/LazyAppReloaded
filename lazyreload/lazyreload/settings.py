@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -42,6 +43,9 @@ INSTALLED_APPS = [
     # third party apps
     "rest_framework",
     "django_extensions",
+    "rest_framework.authtoken",
+    #"knox",
+
 
     # project apps
     "apps.core",
@@ -67,7 +71,7 @@ ROOT_URLCONF = "lazyreload.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        'DIRS': [BASE_DIR / 'apps/auth/templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -100,7 +104,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'lazyapp',
         'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        'PASSWORD': 'doublek',
         'HOST': '127.0.0.1', # host in development stage
         'PORT': '5432'
     }
@@ -155,6 +159,15 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication'
-    ]
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
 }
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=2)
+}
+
+# REST_KNOX = {
+#     'USER_SERIALIZER': 'accounts.serializers.UserSerializer',
+#     'TOKEN_TTL': timedelta(hours=48)
+# }
