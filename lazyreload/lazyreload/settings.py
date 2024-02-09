@@ -38,8 +38,8 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     # core Django apps
     "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
+    "django.contrib.auth", # Core authentication framework and its default models
+    "django.contrib.contenttypes", # Django content type system (allows permissions to be associated with models)
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
@@ -69,6 +69,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+AUTH_USER_MODEL = "users.LazyUser"
 
 ROOT_URLCONF = "lazyreload.urls"
 
@@ -161,10 +163,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':[
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
 

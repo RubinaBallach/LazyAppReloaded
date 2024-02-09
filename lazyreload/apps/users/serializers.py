@@ -12,7 +12,5 @@ class LazyUserSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
-            'created_at',
-            'last_login',
             'is_active'
         ]
