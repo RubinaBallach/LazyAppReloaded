@@ -43,6 +43,9 @@ INSTALLED_APPS = [
     # third party apps
     "rest_framework",
     "django_extensions",
+    "rest_framework.authtoken",
+    #"knox",
+
 
     # project apps
     "apps.core",
@@ -101,7 +104,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'lazyapp',
         'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        'PASSWORD': 'doublek',
         'HOST': '127.0.0.1', # host in development stage
         'PORT': '5432'
     }
@@ -156,10 +159,15 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication'
-    ]
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
 }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=2)
 }
+
+# REST_KNOX = {
+#     'USER_SERIALIZER': 'accounts.serializers.UserSerializer',
+#     'TOKEN_TTL': timedelta(hours=48)
+# }

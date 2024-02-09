@@ -6,42 +6,33 @@ import uuid
 # Create your models here.
 
 class LazyUserManager(BaseUserManager):
-    def create_user(self, email, username, first_name, last_name, password):
-        if email is None:
-            raise TypeError("Please enter an email address.")
-        if username is None:
-            raise TypeError("Please enter a username.")
-        if password is None:
-            raise TypeError
-        
+    def create_user(self, email, username, first_name, last_name, password=None, **extra_fields):
+        if not email:
+            raise ValueError('The Email field must be set')
+        email = self.normalize_email(email)
         user = self.model(
-            email=self.normalize_email(email),
+            email=email,
             username=username,
             first_name=first_name,
             last_name=last_name,
+            **extra_fields
         )
-
-        user.is_staff = False
         user.set_password(password)
         user.save(using=self._db)
-
         return user
 
-    def create_superuser(self, username, email, first_name, last_name, password):
-        user = self.create_user(
-            email=self.normalize_email(email),
-            password=password,
-            username=username,
-            first_name=first_name,
-            last_name=last_name,
+    def create_superuser(self, email, username, first_name, last_name, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        return self.create_user(
+            email,
+            username,
+            first_name,
+            last_name,
+            password,
+            **extra_fields
         )
-
-        user.is_admin = True
-        user.is_staff = True
-        user.is_superuser = True
-        user.save(using=self._db)
-        return user
-
 
 class LazyUser(AbstractBaseUser):
     user_id = models.UUIDField(
@@ -50,15 +41,17 @@ class LazyUser(AbstractBaseUser):
         default=uuid.uuid4,
         editable=False
         ) # index to increase speed
+    objects = LazyUserManager()
     email = models.EmailField(verbose_name="email", max_length=60, unique=True)
     username = models.CharField(max_length=60, unique=True)
+    first_name = models.CharField(max_length=60)
+    last_name = models.CharField(max_length=60)
     created_at = models.DateTimeField(verbose_name="signed up", auto_now_add=True)
     last_login = models.DateTimeField(verbose_name="last login", auto_now=True)
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    first_name = models.CharField(max_length=60)
-    last_name = models.CharField(max_length=60)
+    
 
     USE_CASE_CHOICES = {
         "Job":"Job Applications",
