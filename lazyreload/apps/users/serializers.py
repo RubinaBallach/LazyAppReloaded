@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import LazyUser, LazyUserManager
+from .models import LazyUser, LazyUserProfile
 
 class LazyUserSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='user_id', read_only=True)
@@ -14,3 +14,6 @@ class LazyUserSerializer(serializers.ModelSerializer):
             'last_name',
             'is_active'
         ]
+
+class LazyUserProfileSerializer(serializers.ModelSerializer):
+    pass
