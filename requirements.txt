@@ -4,8 +4,17 @@ django-extensions==3.2.3
 django-restframework==0.0.1
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.1
-psycopg2-binary==2.9.9
 PyJWT==2.8.0
 pytz==2024.1
 sqlparse==0.4.4
 typing_extensions==4.9.0
+
+# postgreSQL Database
+psycopg2-binary==2.9.9
+
+# Environment variables
+python-dotenv==1.0.1
+
+# Email Validation
+pydns3==0.0.9
+validate_email==1.3

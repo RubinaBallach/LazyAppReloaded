@@ -6,7 +6,7 @@ from ..users.serializers import LazyUserSerializer
 # from .models import CustomUser
 
 
-#lazyreload/apps/users/serializers.py
+# lazyreload/apps/users/serializers.py
 
 
 class LoginSerializer(TokenObtainPairSerializer):
