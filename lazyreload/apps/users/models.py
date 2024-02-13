@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, UserManager
+from django.utils.timezone import now
 import uuid
 
 
@@ -36,7 +37,7 @@ class LazyUser(AbstractUser):
         unique=True,
         default=uuid.uuid4,
         editable=False
-        ) # index to increase speed
+        )  # index to increase speed
     objects = LazyUserManager()
     email = models.EmailField(verbose_name="email", max_length=60, unique=True)
     username = models.CharField(max_length=60, unique=True)
@@ -45,26 +46,32 @@ class LazyUser(AbstractUser):
     is_superuser = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    
-
-    USE_CASE_CHOICES = {
-        "Job":"Job Applications",
-        "Flat":"Flat Applications",
-        "both":"Job&Flat Applications"
-    }
-    use_case = models.CharField(max_length=60, choices=USE_CASE_CHOICES, default="both")
 
     # for login with username and password
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email"]
 
     def __str__(self):
-        return self.username + "," + self.email
+        return self.username
     
     @property
     def name(self):
         return f"{self.first_name} {self.last_name}"
-    
+  
 
-# class LazyApplicants(models.Model):
- #   user_id = models.ForeignKey()
+class LazyUserProfile(models.Model):
+    lazy_user_id = models.AutoField(primary_key=True)
+    user = models.OneToOneField(
+       LazyUser,
+       on_delete=models.CASCADE,
+       related_name="profile")
+    USE_CASE_CHOICES = {
+        "job": "Job Applications",
+        "flat": "Flat Applications",
+        "both": "Job&Flat Applications"
+    }
+    use_case = models.CharField(max_length=60, choices=USE_CASE_CHOICES, default="job")
+    cv_file = models.FileField(upload_to="cvs", blank=True, null=True)
+    cv_text = models.TextField(blank=True, null=True)
+    email = models.EmailField(max_length=60, blank=True)  # user might want to use a different mailadress for applications that for lazyapp signup
+    availability = models.DateField(default=now(), verbose_name="Earliest Start Date")
