@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.generics import CreateAPIView, UpdateAPIView
 from rest_framework.permissions import AllowAny
 from .models import LazyUser
-from .serializers import LazyUserSerializer  #UpdateUserSerializer
+from .serializers import LazyUserSerializer  # UpdateUserSerializer
 
 
 

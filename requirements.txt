@@ -15,6 +15,3 @@ psycopg2-binary==2.9.9
 # Environment variables
 python-dotenv==1.0.1
 
-# Email Validation
-pydns3==0.0.9
-validate_email==1.3

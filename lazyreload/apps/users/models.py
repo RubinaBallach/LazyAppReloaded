@@ -57,7 +57,7 @@ class LazyUser(AbstractUser):
     @property
     def name(self):
         return f"{self.first_name} {self.last_name}"
-    
+  
 
 class LazyUserProfile(models.Model):
     lazy_user_id = models.AutoField(primary_key=True)
@@ -73,8 +73,5 @@ class LazyUserProfile(models.Model):
     use_case = models.CharField(max_length=60, choices=USE_CASE_CHOICES, default="job")
     cv_file = models.FileField(upload_to="cvs", blank=True, null=True)
     cv_text = models.TextField(blank=True, null=True)
-    email = models.EmailField(max_length=60, blank=True) # user might want to use a different mailadress for applications that for lazyapp signup
+    email = models.EmailField(max_length=60, blank=True)  # user might want to use a different mailadress for applications that for lazyapp signup
     availability = models.DateField(default=now(), verbose_name="Earliest Start Date")
-
-
-
