@@ -68,11 +68,11 @@ class LazyJobApplication(models.Model):
     notes = models.TextField(blank=True)
 
     # ai settings
-    ai_settings = models.ForeignKey(
-        "core.AiSettings",
-        on_delete=models.CASCADE,
-        blank=False
-    )
+    # ai_settings = models.ForeignKey(
+    #     "core.AiSettings",
+    #     on_delete=models.CASCADE,
+    #     blank=False
+    # )
     # costs connected to the application
     application_costs = models.FloatField(blank=True, null=True)
 

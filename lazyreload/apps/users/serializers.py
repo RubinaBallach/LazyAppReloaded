@@ -5,6 +5,9 @@ from django.core.validators import EmailValidator, RegexValidator
 
 
 class CapitalizeNameField(serializers.CharField):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
     def __call__(self, value):
         return value.title()
 
@@ -34,12 +37,7 @@ class LazyUserSerializer(serializers.ModelSerializer):
         write_only=True,
         style={'input_type': 'password'}
         )
-
     
-    # def to_internal_value(self, data):
-    #     data['first_name'] = CapitalizeNameField(data['first_name'])
-    #     data['last_name'] = CapitalizeNameField(data['last_name'])
-    #     return super().to_internal_value(data)
 
     
 
@@ -53,6 +51,11 @@ class LazyUserSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
         ]
+        
+    def to_internal_value(self, data):
+        data['first_name'] = CapitalizeNameField(data['first_name'])
+        data['last_name'] = CapitalizeNameField(data['last_name'])
+        return super().to_internal_value(data)
         
     def create(self, validated_data):
         user = LazyUser(
