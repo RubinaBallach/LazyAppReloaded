@@ -143,4 +143,5 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
-# Pyre type check
+
+media/
