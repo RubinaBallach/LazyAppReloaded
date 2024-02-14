@@ -4,9 +4,9 @@ from rest_framework.validators import UniqueValidator
 from django.core.validators import EmailValidator, RegexValidator
 
 
-# class CapitalizeNameField(serializers.CharField):
-#     def __call__(self, value):
-#         return value.title()
+class CapitalizeNameField(serializers.CharField):
+    def __call__(self, value):
+        return value.title()
 
 # class LoginSerializer(TokenObtainPairSerializer):
 #     def validate(self, attrs: Dict[str. Any]) -> Dict[str, str]:
