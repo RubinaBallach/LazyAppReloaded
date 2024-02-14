@@ -77,3 +77,4 @@ class LazyUserProfileSerializer(serializers.ModelSerializer):
             'user_id'
         ]
     
+

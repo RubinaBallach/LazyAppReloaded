@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_extensions",
     "rest_framework.authtoken",
-    #"knox",
+
 
 
     # project apps
@@ -167,6 +167,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':[
 
         'rest_framework.authentication.TokenAuthentication',
+        #'rest_framework.authentication.SessionAuthentication',
     ],
 }
 
@@ -174,7 +175,3 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=2)
 }
 
-# REST_KNOX = {
-#     'USER_SERIALIZER': 'accounts.serializers.UserSerializer',
-#     'TOKEN_TTL': timedelta(hours=48)
-# }
