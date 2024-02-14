@@ -104,6 +104,8 @@ WSGI_APPLICATION = "lazyreload.wsgi.application"
 #     }
 # }
 
+# Define Rootfolder for media files
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # configure postgres database
 DATABASES = {

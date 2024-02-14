@@ -1,8 +1,47 @@
 from rest_framework import serializers
-from .models import LazyUser, LazyUserManager
+from .models import LazyUser, LazyUserProfile
+from rest_framework.validators import UniqueValidator
+from django.core.validators import EmailValidator, RegexValidator
+
+
+class CapitalizeNameField(serializers.CharField):
+    def __call__(self, value):
+        return value.title()
+
+# class LoginSerializer(TokenObtainPairSerializer):
+#     def validate(self, attrs: Dict[str. Any]) -> Dict[str, str]:
+#         data = super().validate(attrs)
+#         # get the tokens (both access and refresh token)
+#         refresh = self.get_token(self.user)
+#         data['refresh'] = str(refresh) # refresh token
+#         data['access'] = str(refresh.access_token) # access token
+
 
 class LazyUserSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='user_id', read_only=True)
+    username = serializers.SlugField(
+        max_length=60,
+        validators=[
+            UniqueValidator(queryset=LazyUser.objects.all(), message="Username already exists."),
+            RegexValidator(r'^\w+$', message='Username cannot contain profanities'),
+            ]
+    )
+    email = serializers.EmailField(
+        required=True,
+        validators=[EmailValidator(message="Invalid email address"),]
+        )
+    password = serializers.CharField(
+        write_only=True,
+        style={'input_type': 'password'}
+        )
+
+    
+    # def to_internal_value(self, data):
+    #     data['first_name'] = CapitalizeNameField(data['first_name'])
+    #     data['last_name'] = CapitalizeNameField(data['last_name'])
+    #     return super().to_internal_value(data)
+
+    
 
     class Meta:
         model = LazyUser
@@ -10,40 +49,32 @@ class LazyUserSerializer(serializers.ModelSerializer):
             'id',
             'email',
             'username',
+            'password',
             'first_name',
             'last_name',
-            'is_active',
         ]
+        
+    def create(self, validated_data):
+        user = LazyUser(
+            email=validated_data['email'],
+            username=validated_data['username'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name']
+        )
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
 
 
-# class CreateUserSerializer(serializers.ModelSerializer):
-#     password = serializers.CharField(write_only=True)
+class LazyUserProfileSerializer(serializers.ModelSerializer):
+    cv_file = serializers.FileField()
 
-#     class Meta:
-#         model = LazyUser
-#         fields = "__all__"
+    class Meta:
+        model = LazyUserProfile
+        fields = [
+            'id',
+            'cv_file',
+            'user_id'
+        ]
+    
 
-#     def validate(self, attrs):
-#         email = attrs.get('email', '').strip().lower()
-#         if LazyUser.objects.filter(email=email).exists():
-#             raise serializers.ValidationError('User with this email id already exists.')
-#         return attrs
-
-#     def create(self, validated_data):
-#         password = validated_data.pop('password')
-#         user = LazyUser.objects.create_user(password=password, **validated_data)
-#         return user
-
-
-
-# class UpdateUserSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = LazyUser
-#         fields = ('first_name', 'last_name', 'email', 'password')
-
-#     def update(self, instance, validated_data):
-#         password = validated_data.pop('password')
-#         if password:
-#             instance.set_password(password)
-#         instance = super().update(instance, validated_data)
-#         return instance
