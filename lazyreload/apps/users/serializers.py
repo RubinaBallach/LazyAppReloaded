@@ -1,15 +1,15 @@
 from rest_framework import serializers
 from .models import LazyUser, LazyUserProfile
-from rest_framework.validators import UniqueValidator
+#from rest_framework.validators import UniqueValidator
 from django.core.validators import EmailValidator, RegexValidator
 
 
-class CapitalizeNameField(serializers.CharField):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+# class CapitalizeNameField(serializers.CharField):
+#     def __init__(self, **kwargs):
+#         super().__init__(**kwargs)
 
-    def __call__(self, value):
-        return value.title()
+#     def __call__(self, value):
+#         return value.title()
 
 # class LoginSerializer(TokenObtainPairSerializer):
 #     def validate(self, attrs: Dict[str. Any]) -> Dict[str, str]:
@@ -25,7 +25,7 @@ class LazyUserSerializer(serializers.ModelSerializer):
     username = serializers.SlugField(
         max_length=60,
         validators=[
-            UniqueValidator(queryset=LazyUser.objects.all(), message="Username already exists."),
+            #UniqueValidator(queryset=LazyUser.objects.all(), message="Username already exists."),
             RegexValidator(r'^\w+$', message='Username cannot contain profanities'),
             ]
     )
@@ -39,8 +39,6 @@ class LazyUserSerializer(serializers.ModelSerializer):
         )
     
 
-    
-
     class Meta:
         model = LazyUser
         fields = [
@@ -52,10 +50,10 @@ class LazyUserSerializer(serializers.ModelSerializer):
             'last_name',
         ]
         
-    def to_internal_value(self, data):
-        data['first_name'] = CapitalizeNameField(data['first_name'])
-        data['last_name'] = CapitalizeNameField(data['last_name'])
-        return super().to_internal_value(data)
+    # def to_internal_value(self, data):
+    #     data['first_name'] = CapitalizeNameField(data['first_name'])
+    #     data['last_name'] = CapitalizeNameField(data['last_name'])
+    #     return super().to_internal_value(data)
         
     def create(self, validated_data):
         user = LazyUser(
@@ -67,6 +65,16 @@ class LazyUserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+class LazyLoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+
+class LazyUpdateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LazyUser
+        fields = ['email', 'username', 'first_name', 'last_name']
 
 
 class LazyUserProfileSerializer(serializers.ModelSerializer):
