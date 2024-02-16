@@ -3,9 +3,24 @@ from tqdm import tqdm
 import time
 import os
 from dotenv import load_dotenv
+import tiktoken
+
+def count_tokens(text):
+    encoding = tiktoken.encoding_for_model("gpt-4")
+    num_tokens = len(encoding.encode(text))
+    token_usage_costs = num_tokens / 1000 * 0.02  # Adjust the price per token as needed
+    return num_tokens, token_usage_costs
 
 def generate_application_letter(api_key, cv_text, job_description):
     openai.api_key = api_key
+    
+    # Calculate token usage and costs for CV and job description
+    cv_tokens, cv_token_costs = count_tokens(cv_text)
+    job_tokens, job_token_costs = count_tokens(job_description)
+    
+    # Calculate total token count and costs
+    total_tokens = cv_tokens + job_tokens
+    total_token_costs = cv_token_costs + job_token_costs
     
     # Create a prompt using CV and job description
     prompt = f"Generate an application letter based on the following CV and job description:\n\nCV:\n{cv_text}\n\nJob Description:\n{job_description}\n\nApplication Letter:"
@@ -39,8 +54,16 @@ def generate_application_letter(api_key, cv_text, job_description):
     elapsed_time = end_time - start_time
     print(f"\nTime Consumed: {elapsed_time:.2f} seconds")
 
-    return response['choices'][0]['message']['content'].strip()
+    # Format the output
+    generated_letter = response['choices'][0]['message']['content'].strip()
+    output = (
+        f"\nGenerated Application Letter:\n{generated_letter}\n"
+        f"\nTotal Token Usage: {total_tokens} tokens, Total Cost: ${total_token_costs:.5f}\n"
+        f"Token Usage for CV: {cv_tokens} tokens, Cost: ${cv_token_costs:.5f}\n"
+        f"Token Usage for Job Description: {job_tokens} tokens, Cost: ${job_token_costs:.5f}"
+    )
 
+    print(output)
 
 if __name__ == "__main__":
     # Example usage
