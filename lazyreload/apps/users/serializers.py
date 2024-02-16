@@ -15,16 +15,6 @@ class CapitalizeNameField(serializers.CharField):
         return value.title()
 
 
-
-# class LoginSerializer(TokenObtainPairSerializer):
-#     def validate(self, attrs: Dict[str. Any]) -> Dict[str, str]:
-#         data = super().validate(attrs)
-#         # get the tokens (both access and refresh token)
-#         refresh = self.get_token(self.user)
-#         data['refresh'] = str(refresh) # refresh token
-#         data['access'] = str(refresh.access_token) # access token
-
-
 class LazyUserSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source="user_id", read_only=True)
     username = serializers.SlugField(

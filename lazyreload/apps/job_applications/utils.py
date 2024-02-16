@@ -95,7 +95,7 @@ class JobAdImporter:
         job_title = self.soup.find("span", {"data-br": ":R2r3brrqnlenla:"})
 
         print(job_title.text.replace("Stellenausschreibung: ", "").strip())
-# <span data-br=":R2r3brrqnlenla:" data-brr="1" style="display:inline-block;vertical-align:top;text-decoration:inherit;text-wrap:balance">Stellenausschreibung: Mitarbeiter*in Controlling - ATZE Musiktheater</span>
+
 
 
 if __name__ == "__main__":
