@@ -15,6 +15,7 @@ from .serializers import LazyUserSerializer, LazyLoginSerializer, LazyUpdateUser
 
 
 
+
 class CreateUserAPI(CreateAPIView):
     queryset = LazyUser.objects.all()
     serializer_class = LazyUserSerializer
