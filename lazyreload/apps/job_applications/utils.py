@@ -99,6 +99,7 @@ class JobAdImporter:
         description_tag = self.soup.find("div", class_="jobDescription")
         job_description = description_tag.div.div.div.div
 
+
         return {
             "job_title": job_title.text.replace("Stellenausschreibung: ", "").strip(),
             "company_name": company_name.text.strip(),
@@ -156,6 +157,7 @@ class JobAdImporter:
         tasks = self.soup.find("div", class_="listing-content-provider-15mhjzh at-section-text-description-content listingContentBrandingColor")
         profile = self.soup.find("div", class_="listing-content-provider-15mhjzh at-section-text-profile-content listingContentBrandingColor")
         job_description = tasks.text.replace("\n"," ").replace("\xa0","").strip() + " " + profile.text.replace("\n"," ").replace("\xa0","").strip()
+
 
         return {
             "job_title": job_title.text.strip(),

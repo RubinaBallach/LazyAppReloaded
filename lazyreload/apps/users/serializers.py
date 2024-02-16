@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import LazyUser, LazyUserProfile
+
 from rest_framework.validators import UniqueValidator
 from django.core.validators import (
     EmailValidator,
@@ -38,6 +39,7 @@ class LazyUserSerializer(serializers.ModelSerializer):
         instance.last_name = CapitalizeNameField()(instance.last_name)
         return super().to_representation(instance)
 
+
     def create(self, validated_data):
         user = LazyUser(
             email=validated_data["email"],
@@ -59,6 +61,7 @@ class LazyUserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data["password"])
         user.save()
         return user
+
 
     class Meta:
         model = LazyUser
