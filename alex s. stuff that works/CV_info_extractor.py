@@ -3,6 +3,7 @@ from tqdm import tqdm
 import time
 import os
 from dotenv import load_dotenv
+
 def process_text(api_key, prompt, text_to_process):
     openai.api_key = api_key
     
