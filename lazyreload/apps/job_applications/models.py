@@ -5,9 +5,8 @@ class Company(models.Model):
     company_id = models.AutoField(primary_key=True)
     company_name = models.CharField(max_length=60, blank=False)
     company_website = models.URLField(max_length=250, blank=True)
-    company_address = models.CharField(max_length=60, blank=True)
+    company_location = models.CharField(max_length=60, blank=True)
     company_mail = models.EmailField(max_length=60, blank=True)
-    company_logo = models.ImageField(upload_to="logos", blank=True, null=True)
     company_info = models.TextField(blank=True, null=True)
 
     def __str__(self):
