@@ -1,3 +1,4 @@
+
 import openai
 from tqdm import tqdm
 import time
@@ -149,4 +150,5 @@ if __name__ == "__main__":
         generator.generate_application_letter(cv_text, relevant_job_info)
     else:
         print("Failed to extract text from the CV.")
+
 
