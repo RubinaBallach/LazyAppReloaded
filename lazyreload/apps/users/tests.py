@@ -1,38 +1,84 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
-from django.core import mail
+from rest_framework import status
 
-class UserAuthenticationTest(TestCase):
+class UserTestCase(TestCase):
     def setUp(self):
-        self.user = get_user_model().objects.create_user(email="user@example.com", username='testuser', password='password123')
-        self.login_url = reverse('login')  
-    # Login view and url configured? of course fucking not
+        self.create_user_url = reverse('create-user')
 
-    def test_valid_login(self):
-        response = self.client.post(self.login_url, {'username': 'testuser', 'password': 'password123'})
-        self.assertTrue(response.context['user'].is_authenticated)
-        pass
-        #verify login
+    def test_create_user_success(self):
+        payload = {
+            'email': 'newuser@example.com',
+            'username': 'newuser',
+            'password': 'testpass123'
+        }
+        # Make POST request to create new user
+        response = self.client.post(self.create_user_url, payload)
 
-    def test_invalid_password_login(self):
-        response = self.client.post(self.login_url, {'username': 'testuser', 'password': 'wrongpass'})
-        self.assertFalse(response.context['user'].is_authenticated) 
-    #verify invalid pass
+       
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # Verify user exists in the database
+        user_exists = get_user_model().objects.filter(username=payload['username']).exists()
+        self.assertTrue(user_exists)
 
-    def test_blank_fields_login(self):
-        response = self.client.post(self.login_url, {'username': '', 'password': ''})
-        self.assertIn('This field is required.', response.context['form'].errors['username'])
-        self.assertIn('This field is required.', response.context['form'].errors['password'])
-    #verify if blank field 
+    def test_create_user_invalid_data(self):
+        
+        payload = {
+            'email': 'newuser@example.com',
+            'password': 'testpass123'
+        }
+        # POST request with invalid data
+        response = self.client.post(self.create_user_url, payload)
 
-    def test_forgot_password(self):
-        response = self.client.post(reverse('password_reset'), {'email': 'self.user.email'})
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertIn('password reset', mail.outbox[0].subject)
-    #verify "forgot password" function
+        # Request failed, invalid data
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    
+    def test_update_user_success(self):
+        # Assuming existence of user setup method
+        self.client.login(email='existinguser@example.com', password='password')
+        update_url = reverse('update-user', kwargs={'username': 'existinguser'})
 
-    def test_invalid_login_message(self):
-        response = self.client.post(self.login_url, {'username': 'testuser', 'password': 'wrongpass'})
-        self.assertIn('Invalid credentials', response.content.decode())
-    #verify message for invalid login
+        # New data payload for updating the user
+        payload = {'email': 'updatedemail@example.com'}
+        response = self.client.patch(update_url, payload)
+
+        # Assert the update successful
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Confirm the user's email was updated
+        self.assertEqual(get_user_model().objects.get(username='existinguser').email, payload['email'])
+
+
+    def test_users_list_authenticated(self):
+        # Login as an authenticated user
+        self.client.login(email='user@example.com', password='password')
+        list_url = reverse('list-users')
+
+        # Attempt to access the user list
+        response = self.client.get(list_url)
+
+        #requestsuccessful?
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+    def test_user_profile_access(self):
+        # Login as the user
+        self.client.login(email='user@example.com', password='password')
+        profile_url = reverse('user-profile')
+
+        # Attempt access to profile
+        response = self.client.get(profile_url)
+
+        # profile is accessible?
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_login_inactive_user(self):
+        # Setup an inactive user
+        user = get_user_model().objects.create_user(email="inactive@example.com", username='inactiveuser', password='password123', is_active=False)
+        login_url = reverse('login')
+
+        # Try login with inactive user
+        response = self.client.post(login_url, {'email': 'inactive@example.com', 'password': 'password123'})
+
+        #login is unsuccessful?
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

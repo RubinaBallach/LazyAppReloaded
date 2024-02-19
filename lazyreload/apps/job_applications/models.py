@@ -31,13 +31,13 @@ class LazyJobApplication(models.Model):
     recruiter_mail = models.EmailField(max_length=60, blank=True)
     recruiter_phone = models.CharField(max_length=60, blank=True)
     # questions to the applicant
-    JOB_TYPE_CHOICES = {
-        "full": "Full Time",
-        "part": "Part Time",
-        "intern": "Internship",
-        "free": "Freelance",
-        "temp": "Temporary",
-    }
+    JOB_TYPE_CHOICES = [
+        ("full", "Full Time"),
+        ("part", "Part Time"),
+        ("intern", "Internship"),
+        ("free", "Freelance"),
+        ("temp", "Temporary"),
+    ]
     job_type = models.CharField(
         max_length=20,
         choices=JOB_TYPE_CHOICES,
@@ -48,17 +48,21 @@ class LazyJobApplication(models.Model):
         blank=True,
         verbose_name="Anything to highlight apart from CV Info?"
         )
-    # application status
-    APPLICANT_STATUS_CHOICES = {
-        "apply": "Need to apply",
-        "applied": "Applied",
-        "interview": "Interview",
-        "rejected": "Rejected",
-        "accepted": "Accepted",
-        "offer": "Offer",
-        "hired": "Hired",
-        "withdrawn": "Withdrawn",
-    }
+    # application status 
+    APPLICANT_STATUS_CHOICES = [
+        ("apply", "Need to apply"),
+        ("applied", "Applied"),
+        ("interview", "Interview"),
+        ("rejected", "Rejected"),
+        ("accepted", "Accepted"),
+        ("offer", "Offer"),
+        ("hired", "Hired"),
+        ("withdrawn", "Withdrawn"),
+    ]
+    
+    job_type = models.CharField(max_length=50, choices=JOB_TYPE_CHOICES)
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES)
+    
     application_send_date = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=APPLICANT_STATUS_CHOICES, default="apply")
     interview_date = models.DateField(blank=True, null=True)
