@@ -1,4 +1,6 @@
-import openai
+from openai import OpenAI
+
+client = OpenAI(api_key=api_key)
 from tqdm import tqdm
 import time
 import os
@@ -12,7 +14,6 @@ def count_tokens(text):
     return num_tokens, token_usage_costs
 
 def generate_application_letter(api_key, cv_text, job_description):
-    openai.api_key = api_key
     
     # Calculate token usage and costs for CV and job description
     cv_tokens, cv_token_costs = count_tokens(cv_text)
@@ -31,18 +32,16 @@ def generate_application_letter(api_key, cv_text, job_description):
     start_time = time.time()
 
     # Make a request to the API using v1/chat/completions
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are an AI assistant that helps users generate application letters."},
-            {"role": "user", "content": prompt}
-        ]
-    )
+    response = client.chat.completions.create(model="gpt-4",
+    messages=[
+        {"role": "system", "content": "You are an AI assistant that helps users generate application letters."},
+        {"role": "user", "content": prompt}
+    ])
 
     # Check the status of the API call
-    while 'status' in response and response['status'] == 'in_progress':
+    while 'status' in response and response.status == 'in_progress':
         time.sleep(1)  # Adjust the interval as needed
-        response = openai.Completion.retrieve(response['id'])
+        response = client.completions.retrieve(response.id)
 
     end_time = time.time()
 
@@ -55,7 +54,7 @@ def generate_application_letter(api_key, cv_text, job_description):
     print(f"\nTime Consumed: {elapsed_time:.2f} seconds")
 
     # Format the output
-    generated_letter = response['choices'][0]['message']['content'].strip()
+    generated_letter = response.choices[0].message.content.strip()
     output = (
         f"\nGenerated Application Letter:\n{generated_letter}\n"
         f"\nTotal Token Usage: {total_tokens} tokens, Total Cost: ${total_token_costs:.5f}\n"
