@@ -113,6 +113,7 @@ class CoverLetterGenerator:
 
 
 if __name__ == "__main__":
+    load_dotenv()
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     generator = CVTextExtractor(OPENAI_API_KEY,
                                  "lazyreload/media/cvs/TestCV_Lazy_App.pdf")
