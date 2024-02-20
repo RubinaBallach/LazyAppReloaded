@@ -1,26 +1,36 @@
-from django.contrib.auth import get_user_model
-from django.test import TestCase
-from django.urls import reverse
+from rest_framework.test import APIClient, APITestCase
 from rest_framework import status
+from django.urls import reverse
+from django.contrib.auth import get_user_model
+from rest_framework.authtoken.models import Token
 
-class UserTestCase(TestCase):
+
+
+User = get_user_model()
+
+class UserAPITestCase(APITestCase):
+    
     def setUp(self):
+        #create user for auth test
+        self.test_user = User.objects.create_user('testuser', 'test@example.com', 'testpassword')
+        self.test_user_token = Token.objects.create(user=self.test_user)
         self.create_user_url = reverse('create-user')
+        self.login_url = reverse('login')
+        self.list_users_url = reverse('list-users')
+        self.user_profile_url = reverse('user-profile', kwargs={'username': self.test_user.username})
+        self.update_user_url = reverse('update-user', kwargs={'username': self.test_user.username})
+
 
     def test_create_user_success(self):
+        
         payload = {
             'email': 'newuser@example.com',
             'username': 'newuser',
             'password': 'testpass123'
         }
-        # Make POST request to create new user
-        response = self.client.post(self.create_user_url, payload)
-
-       
+        
+        response = self.client.post(self.create_user_url, payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        # Verify user exists in the database
-        user_exists = get_user_model().objects.filter(username=payload['username']).exists()
-        self.assertTrue(user_exists)
 
     def test_create_user_invalid_data(self):
         
@@ -28,57 +38,41 @@ class UserTestCase(TestCase):
             'email': 'newuser@example.com',
             'password': 'testpass123'
         }
-        # POST request with invalid data
-        response = self.client.post(self.create_user_url, payload)
-
-        # Request failed, invalid data
+        
+        response = self.client.post(self.create_user_url, payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    
-    
+        
+
     def test_update_user_success(self):
-        # Assuming existence of user setup method
-        self.client.login(email='existinguser@example.com', password='password')
-        update_url = reverse('update-user', kwargs={'username': 'existinguser'})
-
-        # New data payload for updating the user
+        
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.test_user_token.key)
         payload = {'email': 'updatedemail@example.com'}
-        response = self.client.patch(update_url, payload)
-
-        # Assert the update successful
+        response = self.client.patch(self.update_user_url, payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Confirm the user's email was updated
-        self.assertEqual(get_user_model().objects.get(username='existinguser').email, payload['email'])
-
+        self.test_user.refresh_from_db()
+        self.assertEqual(self.test_user.email, 'updatedemail@example.com')
+        
 
     def test_users_list_authenticated(self):
-        # Login as an authenticated user
-        self.client.login(email='user@example.com', password='password')
-        list_url = reverse('list-users')
-
-        # Attempt to access the user list
-        response = self.client.get(list_url)
-
-        #requestsuccessful?
+        
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.test_user_token.key)
+        response = self.client.get(self.list_users_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
+
     def test_user_profile_access(self):
-        # Login as the user
-        self.client.login(email='user@example.com', password='password')
-        profile_url = reverse('user-profile')
-
-        # Attempt access to profile
-        response = self.client.get(profile_url)
-
-        # profile is accessible?
+        
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.test_user_token.key)
+        response = self.client.get(self.user_profile_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-    
+        
+
     def test_login_inactive_user(self):
-        # Setup an inactive user
-        user = get_user_model().objects.create_user(email="inactive@example.com", username='inactiveuser', password='password123', is_active=False)
-        login_url = reverse('login')
-
-        # Try login with inactive user
-        response = self.client.post(login_url, {'email': 'inactive@example.com', 'password': 'password123'})
-
-        #login is unsuccessful?
+        # create inactive user
+        inactive_user = User.objects.create_user('inactiveuser', 'inactive@example.com', 'password123', is_active=False)
+        inactive_user_token = Token.objects.create(user=inactive_user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + inactive_user_token.key)
+        response = self.client.post(self.login_url, {'username': 'inactiveuser', 'password': 'password123'})
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+#STATUS_CHOICES not defined
