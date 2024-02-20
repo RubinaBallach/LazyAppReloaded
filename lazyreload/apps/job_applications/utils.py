@@ -11,9 +11,6 @@ class JobAdImporter:
         self.headers = {
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
             }
-        self.driver = None
-        self.soup = None
-
 
     def retrieve_information(self):
         """switchboard to select the correct method for information retrieval based on the url."""

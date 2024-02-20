@@ -24,6 +24,7 @@ class CreateUserAPI(CreateAPIView):
         user = serializer.save()
         Token.objects.create(user=user)
 
+
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -54,7 +55,7 @@ class LoginView(APIView):
             return Response(response_data, status=status.HTTP_200_OK)
         else:
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-        
+      
 
 class LazyUpdateUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
