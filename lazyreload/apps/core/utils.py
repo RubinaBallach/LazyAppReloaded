@@ -4,12 +4,12 @@ import os
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 
-
+# All AI supported functionalities are implemented in this file
 
 
 class CVTextExtractor:
-    def __init__(self, key, file_path):
-        self.client = OpenAI(api_key=key)
+    def __init__(self, OPENAI_API_KEY, file_path):
+        self.client = OpenAI(api_key=OPENAI_API_KEY)
         self.filepath = file_path
         self.text_content = self.pdf_to_text()
 
@@ -23,7 +23,7 @@ class CVTextExtractor:
             for page in reader.pages:
                 self.text += page.extract_text()
             return self.text
-        
+      
         except Exception as e:
             # Handle exceptions such as API errors
             print(f"Error in extract_cv_info: {e}")
@@ -53,7 +53,7 @@ class CVTextExtractor:
             # Handle exceptions such as API errors
             return f"Error in extract_cv_info: {e}"
 
-
+# CV extract from Database, Job Description from Database
 class CoverLetterGenerator:
     def __init__(self, api_key, job_description, cv_extract):
         self.client = OpenAI(api_key=api_key)
@@ -113,10 +113,10 @@ class CoverLetterGenerator:
 
 
 if __name__ == "__main__":
-    load_dotenv()
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-    print(OPENAI_API_KEY)
-    # generator = CVTextExtractor(OPENAI_API_KEY, "lazyreload/media/cvs/TestCV_Lazy_App.pdf")
+    generator = CVTextExtractor(OPENAI_API_KEY,
+                                 "lazyreload/media/cvs/TestCV_Lazy_App.pdf")
+    print(generator.extract_cv_info())
 
     # # Example usage
     # cv_text = generator.extract_cv_info()
