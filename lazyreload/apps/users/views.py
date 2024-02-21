@@ -98,7 +98,6 @@ class LazyDeleteUserAPIView(APIView):
             return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
         
 
-
 class UserListView(ListAPIView):
     queryset = LazyUser.objects.all()
     serializer_class = LazyUserSerializer
