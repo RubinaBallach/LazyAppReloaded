@@ -61,8 +61,7 @@ class LazyJobApplication(models.Model):
     ]
     
     job_type = models.CharField(max_length=50, choices=JOB_TYPE_CHOICES)
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES)
-    
+    status = models.CharField(max_length=50, choices=APPLICANT_STATUS_CHOICES)
     application_send_date = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=APPLICANT_STATUS_CHOICES, default="apply")
     interview_date = models.DateField(blank=True, null=True)
