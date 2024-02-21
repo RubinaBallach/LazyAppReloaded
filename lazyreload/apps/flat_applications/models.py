@@ -7,12 +7,12 @@ class Landlord(models.Model):
     landlord_mail = models.EmailField(max_length=60, blank=True)
     landlord_phone = models.CharField(max_length=60, blank=True)
     landlord_address = models.TextField(blank=False)
-    LANDLORD_TYPE_CHOICES = {
-        "private": "Private",
-        "company": "Company",
-        "agent": "Agent",
-    }
-    landlord_type = models.CharField(choices=LANDLORD_TYPE_CHOICES, default="private", max_length=20, blank=False)
+    LANDLORD_TYPE_CHOICES = [
+        ("private", "Private"),
+        ("company", "Company"),
+        ("agent", "Agent"),
+    ]
+    landlord_type = models.CharField(max_length=50, choices=LANDLORD_TYPE_CHOICES, default="private", blank=False)
     landlord_notes = models.TextField(blank=True)
 
 # class LazyRenter(models.Model):
