@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 from datetime import timedelta
 
+
 load_dotenv()
 POSTGRES_PW = os.getenv("POSTGRES_PW")
 
