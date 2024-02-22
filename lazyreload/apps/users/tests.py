@@ -74,5 +74,3 @@ class UserAPITestCase(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + inactive_user_token.key)
         response = self.client.post(self.login_url, {'username': 'inactiveuser', 'password': 'password123'})
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-#STATUS_CHOICES not defined
