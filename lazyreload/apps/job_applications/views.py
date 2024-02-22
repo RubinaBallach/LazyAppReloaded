@@ -11,6 +11,7 @@ from rest_framework import status
 from apps.core.utils import CoverLetterGenerator
 from .utils import JobAdImporter
 from dotenv import load_dotenv
+import os
 from drf_multiple_model.views import ObjectMultipleModelAPIView
 
 
@@ -76,17 +77,48 @@ class LazyJobApplicationAPIView(ObjectMultipleModelAPIView):
                 company.recruiter_phone = info["recruiter_phone"]
                 company.save()
             
-
-
-            
             # Save the LazyJobApplication with the associated company and user_profile:
             serializer.save(company_id=company, profile_id=lazy_user_profile)
 
+            if not "salary_expectation" in request.data:
+                salary_expectation = 0
+                serializer.save(salary_expectation=salary_expectation)
+            else:
+                salary_expectation = request.data["salary_expectation"]
+                serializer.save(salary_expectation=salary_expectation)
+            if not "to_highlight" in request.data:
+                to_highlight = ""
+                serializer.save(to_highlight="")
+            else:
+                to_highlight = request.data["to_highlight"]
+                serializer.save(to_highlight=to_highlight)
+            if not "job_type" in request.data:
+                job_type = "full"
+                serializer.save(job_type="full")
+            else:
+                job_type = request.data["job_type"]
+                serializer.save(job_type=job_type)
             if "job_title" in info:
                 serializer.save(job_title=info["job_title"])
             if "job_ad_text" in info:
-                serializer.save(job_ad_text=info["job_ad_text"])
+                job_description = info["job_ad_text"]
+                serializer.save(job_ad_text=job_description)
+            else:
+                job_description = ""
+                serializer.save(job_ad_text=job_description)
         
-            return Response(status=status.HTTP_201_CREATED)
+            # Generate a cover letter based on the job ad and the user's CV:
+            load_dotenv()
+            OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+            cover_letter_generator = CoverLetterGenerator(
+                api_key=OPENAI_API_KEY,
+                job_description=info,
+                cv_extract=lazy_user_profile.cv_text,
+                job_type=job_type,
+                salary_expectation=salary_expectation,
+                to_highlight=to_highlight
+            )
+            cover_letter = cover_letter_generator.generate_application_letter()
+            return Response(info, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
        

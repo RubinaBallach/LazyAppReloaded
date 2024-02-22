@@ -55,11 +55,18 @@ class CVTextExtractor:
 
 # CV extract from Database, Job Description from Database
 class CoverLetterGenerator:
-    def __init__(self, api_key, job_description, cv_extract):
+    def __init__(self, api_key, 
+                 job_description, cv_extract, 
+                 job_type, salary_expectation, 
+                 to_highlight):
         self.client = OpenAI(api_key=api_key)
         self.job_description = job_description
         self.cv_extract = cv_extract
+        self.job_type = job_type
+        self.salary_expectation = salary_expectation
+        self.to_highlight = to_highlight
         self.job_extract = self.relevant_job_info()
+
 
     def relevant_job_info(self):
         """
@@ -75,8 +82,8 @@ class CoverLetterGenerator:
             {"role": "user", "content": prompt},
             {"role": "assistant", "content": self.job_description},
         ])
-        self.job_extract = response.choices[0].message.content.strip()
-        return self.job_extract
+        job_extract = response.choices[0].message.content.strip()
+        return job_extract
 
     def generate_application_letter(self):
         """
@@ -84,7 +91,13 @@ class CoverLetterGenerator:
         """
         # Create a prompt using CV and job description
         prompt = f"""Generate an application letter based on the following CV and job description:
-                    CV:\n{self.cv_extract}\n\nJob Description:\n{self.job_extract}\n\nApplication Letter:"""
+                    CV:\n{self.cv_extract}\n\nJob Description:\n{self.job_extract}. 
+                    The applicant is looking for a {self.job_type}.
+                    """
+        if self.salary_expectation != 0:
+            prompt += f"""The salary expectation is {self.salary_expectation} per year."""
+        if self.to_highlight != "": 
+            prompt += f"""Highlight the following: {self.to_highlight}"""
 
         start_time = time.time()
 
