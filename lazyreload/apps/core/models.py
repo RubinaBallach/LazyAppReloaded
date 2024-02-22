@@ -1,7 +1,7 @@
 from django.db import models
 
 # Create your models here.
-# class AiSettings(models.Model):
+# class AiSettings(models.Model): # not used in CoverLetterGenerator
 #     ai_setting_name = models.CharField(max_length=60, blank=False, default="new")
 #     other_profile_id = models.ForeignKey("users.LazyUserProfile", on_delete=models.CASCADE)
 #     # enable user to save a setting as favorite to reuse it

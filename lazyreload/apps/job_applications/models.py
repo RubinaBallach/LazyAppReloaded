@@ -68,23 +68,14 @@ class LazyJobApplication(models.Model):
         ("withdrawn", "Withdrawn"),
     ]
     
+
     job_type = models.CharField(max_length=50, choices=JOB_TYPE_CHOICES)
     status = models.CharField(max_length=50, choices=APPLICANT_STATUS_CHOICES, default="pending")
-    
-
     application_send_date = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=APPLICANT_STATUS_CHOICES, default="apply")
     interview_date = models.DateField(blank=True, null=True)
     salary_offer = models.IntegerField(blank=True, null=True)
     start_date = models.DateField(blank=True, null=True)
     notes = models.TextField(blank=True)
-
-    # ai settings
-    # ai_settings = models.ForeignKey(
-    #     "core.AiSettings",
-    #     on_delete=models.CASCADE,
-    #     blank=False
-    # )
-    # costs connected to the application
     application_costs = models.FloatField(blank=True, null=True)
 

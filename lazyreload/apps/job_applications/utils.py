@@ -343,7 +343,7 @@ class JobAdImporter:
             }
     
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     
     # Testing
     #indeed_ad = JobAdImporter('https://de.indeed.com/jobs?q=python&l=berlin&from=searchOnHP&advn=95263882141188&vjk=2fcd8a5b9ce55739')
