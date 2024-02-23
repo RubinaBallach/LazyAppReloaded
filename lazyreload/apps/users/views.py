@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate, login
-from drf_yasg.utils import swagger_auto_schema
+#from drf_yasg.utils import swagger_auto_schema
 from .models import LazyUser, LazyUserProfile
 from .serializers import LazyUserSerializer, LazyLoginSerializer, LazyUpdateUserSerializer , LazyUserProfileSerializer  # UpdateUserSerializer
 
