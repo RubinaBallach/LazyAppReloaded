@@ -17,8 +17,8 @@ class UserAPITestCase(APITestCase):
         self.create_user_url = reverse('create-user')
         self.login_url = reverse('login')
         self.list_users_url = reverse('list-users')
-        self.user_profile_url = reverse('user-profile', kwargs={'username': self.test_user.username})
-        self.update_user_url = reverse('update-user', kwargs={'username': self.test_user.username})
+        self.user_profile_url = reverse('user-profile', kwargs={'user_id': self.test_user.user_id})
+        self.update_user_url = reverse('update-user', kwargs={'user_id': self.test_user.user_id})
 
 
     def test_create_user_success(self):
