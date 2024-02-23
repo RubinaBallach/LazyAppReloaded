@@ -155,6 +155,9 @@ class LazyUserProfileView(generics.RetrieveUpdateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+class HomeView(APIView):
+    def get(self, request):
+        return render (request, 'users/home.html')
 
 
     
