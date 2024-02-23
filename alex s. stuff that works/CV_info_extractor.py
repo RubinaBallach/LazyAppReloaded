@@ -29,126 +29,95 @@ def process_text(api_key, prompt, text_to_process):
 if __name__ == "__main__":
     # Example usage
     load_dotenv()
-    your_api_key = os.getenv("API_KEY")
+    your_api_key = os.getenv("OPENAI_API_KEY")
     your_prompt = "Extract from the CV: contact information, technical skills,languages including proficiency level, education, work experience in years(extract relevant keywords from the job description that highlight important skills), projects with short description."
 
     your_text_to_process = """Extracted CV Text:
-Jana Müller
-P Y T H O N  B A C K E N D  D E V E L O P E R
-+ 49 176 123 45 678
-jana.mueller@example.com
-Musterstraße. 53, 10315 Berlin
-Technologies
-Python
-HTML & CSS
-Object-Oriented
-Programming
-(OOP)
-CI/CD
-REST API
-Amazon Web
-Services (AWS)
-Frameworks
-Django
-Flask
-Version Controls
-Git
-A B O U T  M E
-L A N G U A G E S
-S K I L L S
-E D U C A T I O N
-DCI Digital Career Institute GmbH, Berlin (05/2023 - 03/2024)
-PYTHON BACKEND PROGRAMMING
-Accomplishing a one-year-full-time training including Python
-Basics, Databases, Django Framework, APIs & Cloud Services
+Extracted CV Text:
+Technologies: HTML & CSS,
+Python, OOP
+Frameworks: Django
+Version controls: Git
+Databases: Relational
+Database Management
+System (RDBMS) & SQL,
+PostgreSQL
+GUI: Tkinter, PyQT
+Others: Agile Development,
+Project Management
++49 172 232 6750
+a.simakov.hh@gmail.com
+linkedin.com/in/alex-simakov
+Buschrosenweg 24, 22177 HH
+C o n t a c t
+S k i l l s  
+As a Python developer, my
+goal is to leverage my
+expertise in Python
+programming, problem-
+solving and software
+development to contribute
+effectively to a dynamic
+team. I am eager to apply
+my skills in creating
+efficient, scalable, and
+high-quality solutions that
+meet business needs and
+enhance the user
+experience.
+P r o f i l e
+S o u n d  E n g i n e e r ,  T e c h n o l o g y  G r o u p ,  
+O d e s s a / K i e v ,  U k r a i n e  
+( 0 7 . 2 0 1 8 - 0 2 . 2 0 2 2  f u l l - t i m e / f r e e l a n c e )
+Design, assembly, configuration and tuning of high-end sound systems
+at events in leading clubs across the country and multi-day festivals,
+as well as on-site supervision during the events and collaboration
+within larger teams.
+E d u c a t i o n
+E x p e r i e n c e
+Alexander Simakov
+P y t h o n  D e v e l o p e r
+G y m n a s i u m  O s t e r b e k ,  
+H a m b u r g ( 0 8 . 2 0 1 3 - 0 7 . 2 0 1 4 )
+Secondary School Diploma
+S a l e s  M a n a g e r ,  M M A  H a m b u r g
+( 0 8 . 2 0 1 5 - 0 1 . 2 0 1 6 )
+Medical Equipment Distribution
+Github.com/OdessaHH
+S e c o n d a r y  S c h o o l  1 9 ,  
+O d e s s a ,  U k r a i n e ( 0 9 . 2 0 1 6 - 0 5 . 2 0 1 7 )
+High School Diploma
+D C I  C a r e e r  I n s t i t u t e ,  
+B e r l i n ( 0 7 . 2 0 2 2 - 0 5 . 2 0 2 4 )
+P y t h o n  B a c k e n d  P r o g r a m m i n g
+Accomplishing a one-year-full-time training including Python Basics,
+Databases, Django Framework, APIs & Cloud Services
 Completing multiple small and one final large practical project to
 practice programming skills
 Completing various Soft-Skill trainings on topics, e.g. Intercultural
-Communication & Agile Projectmanagement
-100-DAYS OF CODE: PYTHON PRO BOOTCAMP
-JR. BUYER / BUYER, WOMEN’S FOOTWEAR MODERN
-Python Developer graduating from a 
-nine-months intense training in 
-Backend Programming in March 2024. 
-Seeking a position to apply experience
-from background in E-Commerce,
-datadriven Buying & Product Development
-and Backend Programming with the
-opportunity to grow my skillset and deliver
-solution-oriented approaches.
-Udemy :  The App Brewery | Dr. Angela Yu (10/2023 - 02/2024)
-Learning Python Basics, Databases, APIs, Webscraping, Version
-Control and GUI Basics
-MASTER’S PROGRAMME: ART HISTORY 
-Freie Universität Berlin (10/2008 - 03/2015 | without diploma)
-BACHELOR’S PROGRAMME: ART HISTORY | MEDIA &
-COMMUNICATION SCIENCE
-Heinrich-Heine-Universität Düsseldorf (10/2005 - 04/2008)
-Degree: Bachelor of Arts (final mark : 1.4)
-W O R K  E X P E R I E N C E
-Zalando SE, Berlin (12/2019 - 01/2023)
-Datadriven independent purchasing of a broad brand portfolio
-incl. negotiation of purchasing conditions
-Analysing KPIs, product related Data, Trends and Competitors,
-adapting results to presentable formats for internal and external
-stakeholders
-Collaborating with various internal departments on topics incl.
-marketing, platform business and software development
-Onboarding and Mentoring of more junior colleagues
-PURCHASING ASSISTANT / ASSISTANT BUYER, 
-PRIVATE LABEL WOMEN’S FOOTWEAR
-zLabels GmbH/Zalando SE , Berlin (08/2015 - 11/2019)
-Databases
-Relational
-Database
-Management
-System
-(RDBMS)
-SQL &
-PostgreSQL
-GUI
-Tkinter, PyQt
-Others
-Agile
-Development
-Project
-Management
-TDD
-C O N T A C T
-German :  
-English :  
-French : 
-Italian : 
-Dutch : 
-Latin : 
-Native Speaker
-Professional proficiency (C2)
-Conversational (B2)
-Pre-intermediate (A2)
-Basic (A1)
-Latin proficiency certificate
-github.com/jamue
-Developing products for private label collections and monitoring
-relevant sales data and KPIs
-Managing communication between an international supplier base
-and internal departments 
-linkedin.com/in/jana-musterfrau
-R E L E V A N T  P R O J E C T S
-Practical Module Python Backend Programming (08/2023)
-LazyApp
-Streamlining application processes utilizing AI
-Functional python application with graphical user interface 
-Managing a small project in a group of four based on Agile
-Methodology
-Skills : Python | PyQt | OOP | Agile Projectmanagement
-W O R K  E X P E R I E N C E
-(continued)
-INTERN / PROJECT-BASED EMPLOYEE, LOCAL MARKETING
-IKEA Deutschland GmbH & Co. KG , Berlin (08/2012 - 08/2013)
-Maintaining local websites  and creating email newsletters for all
-four Berlin IKEA Stores
-Preparing  online reports ( e.g. on newsletter performance)
-Designing and Wording various media (in-store/image brochures) """
+Communication, Agile Projectmanagement and SCRUM
+S t a g e  M a n a g e r ,  L e  P o n a n t  C r u i s e s
+( 0 2 . 2 0 2 0 - 0 4 . 2 0 2 0 )
+Responsible for media, sound, and lighting technology in
+entertainment on the cruise ship.
+S a l e s  M a n a g e r ,  “ P o r t s  o f  U k r a i n e ”  M a g a z i n e ,
+O d e s s a ,  U k r a i n e ( 0 9 . 2 0 2 0 - 0 2 . 2 0 2 1 )
+Sales of advertisements and other media products
+P r o j e c t s
+L a z y  P r o j e c t :  A I  C o v e r  L e t t e r  G e n e r a t o r
+https://github.com/OdessaHH/LazyApp
+S i x S e n s e :  M u s i c  s o r t i n g  t o o l
+https://github.com/OdessaHH/6ix-sense
+L a n g u a g e s  
+German: Native
+Russian: Native
+English: Advanced
+Ukrainian: Advanced
+T u t o r ,  D C I  C a r e e r  I n s t i t u t e
+( 0 9 . 2 0 2 3 - p r e s e n t )
+guiding and supporting students in mastering programming concepts
+through one-on-one and group sessions, tailored lesson plans, and
+hands-on coding exercises. """
 # Set up progress bar
     with tqdm(total=1, desc="Processing", unit="CV") as pbar:
         processed_output, elapsed_time = process_text(your_api_key, your_prompt, your_text_to_process)

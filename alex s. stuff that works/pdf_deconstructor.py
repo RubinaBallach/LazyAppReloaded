@@ -17,8 +17,8 @@ def extract_text_from_pdf(file_path):
         return None
 
 # Example usage:
-#file_path = "/home/user/Desktop/jobsuche/final cvs/EN CV_AlexanderSimakov.pdf"
-file_path = "/home/user/Desktop/jobsuche/final cvs/TestCV Lazy App.pdf"
+file_path = "/home/user/Desktop/jobsuche/final cvs/EN CV_AlexanderSimakov.pdf"
+#file_path = "/home/user/Desktop/jobsuche/final cvs/TestCV Lazy App.pdf"
 cv_text = extract_text_from_pdf(file_path)
 
 if cv_text is not None:
