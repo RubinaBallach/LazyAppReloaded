@@ -27,4 +27,4 @@ jobs:
         
     - name: Run Tests
       run: |
-        python lazyreload/manage.py test apps.users.tests
+        python lazyreload/manage.py test apps/users/
