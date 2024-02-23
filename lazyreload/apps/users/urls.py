@@ -10,5 +10,4 @@ urlpatterns = [
     path('update-user/<uuid:user_id>/', LazyUpdateUserAPIView.as_view(), name='update-user'),
     path('delete-user/<uuid:user_id>/', LazyDeleteUserAPIView.as_view(), name='delete-user'),
     
-  
 ]
