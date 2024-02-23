@@ -1,3 +1,4 @@
+
 from openai import OpenAI
 import time
 import os
@@ -5,6 +6,7 @@ from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 
 # All AI supported functionalities are implemented in this file
+
 
 
 class CVTextExtractor:
@@ -29,14 +31,17 @@ class CVTextExtractor:
             print(f"Error in extract_cv_info: {e}")
             return None
 
+
     def extract_cv_info(self):
         """
         Takes text from CV PDF and returns the most relevant information utilizing openai's GPT-4 model.
         """
 
+
         try:
             # Make a request to the API
             prompt = "Take the CV and meticulously gather and present the most relevant information."
+
             response = self.client.chat.completions.create(model="gpt-4",
             messages=[
                 {
@@ -47,24 +52,30 @@ class CVTextExtractor:
                 {"role": "assistant", "content": self.text_content},
             ])
             cv_extract = response.choices[0].message.content.strip()
+
             return cv_extract
 
         except Exception as e:
             # Handle exceptions such as API errors
             return f"Error in extract_cv_info: {e}"
 
+
 # CV extract from Database, Job Description from Database
 class CoverLetterGenerator:
     def __init__(self, api_key, job_description, cv_extract):
         self.client = OpenAI(api_key=api_key)
+
         self.job_description = job_description
         self.cv_extract = cv_extract
         self.job_extract = self.relevant_job_info()
+
+
 
     def relevant_job_info(self):
         """
         Takes job description and extracts the most relevant information utilizing openai's GPT-4 model.
         """
+
         prompt = "You take a provided job description and a prompt, aiming to meticulously gather and present the most pertinent details."
         response = self.client.chat.completions.create(model="gpt-4",
         messages=[
@@ -76,12 +87,15 @@ class CoverLetterGenerator:
             {"role": "assistant", "content": self.job_description},
         ])
         self.job_extract = response.choices[0].message.content.strip()
+
         return self.job_extract
 
     def generate_application_letter(self):
         """
         Takes all user information, cv and job extracts and generates an application letter using openai's GPT-4 model.
         """
+
+
         # Create a prompt using CV and job description
         prompt = f"""Generate an application letter based on the following CV and job description:
                     CV:\n{self.cv_extract}\n\nJob Description:\n{self.job_extract}\n\nApplication Letter:"""
@@ -89,6 +103,7 @@ class CoverLetterGenerator:
         start_time = time.time()
 
         # Make a request to the API using v1/chat/completions
+
         response = self.client.chat.completions.create(model="gpt-4",
         messages=[
             {
@@ -98,6 +113,7 @@ class CoverLetterGenerator:
             {"role": "user", "content": prompt},
         ])
 
+
         # Calculate time consumed
         end_time = time.time()
         elapsed_time = end_time - start_time
@@ -106,6 +122,7 @@ class CoverLetterGenerator:
         )  # Testing puposes remove in production
 
         # Format the output
+
         cover_letter = response.choices[0].message.content.strip()
 
         print(cover_letter)
@@ -123,3 +140,22 @@ if __name__ == "__main__":
     # cv_text = generator.extract_cv_info()
     # print(cv_text)
 
+
+    # # Read job description from a text file
+    
+    # with open(job_description_file_path, "r", encoding="utf-8") as file:
+    #     job_description = file.read()
+
+    # if cv_text is not None:
+    #     print("Extracted CV Text:")
+    #     print(cv_text)
+
+    #     prompt = "Your prompt here"  # where will this come from?
+    #     relevant_job_info = generator.relevant_job_info(
+    #         api_key, prompt, job_description
+    #     )
+    #     print(f"Processed Job Information:\n{relevant_job_info}")
+
+    #     generator.generate_application_letter(cv_text, relevant_job_info)
+    # else:
+    #     print("Failed to extract text from the CV.")
