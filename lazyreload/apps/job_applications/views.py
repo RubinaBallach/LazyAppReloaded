@@ -13,6 +13,7 @@ from .utils import JobAdImporter
 from dotenv import load_dotenv
 import os
 from drf_multiple_model.views import ObjectMultipleModelAPIView
+from django.http import JsonResponse
 
 
 
@@ -52,7 +53,6 @@ class LazyJobApplicationAPIView(ObjectMultipleModelAPIView):
             company, created = Company.objects.get_or_create(
                 company_name=info["company_name"],
             )
-            print(info)
 
             # Update/populate relevant company fields based on information from the job ad:
             if "company_website" in info:
@@ -106,19 +106,20 @@ class LazyJobApplicationAPIView(ObjectMultipleModelAPIView):
             else:
                 job_description = ""
                 serializer.save(job_ad_text=job_description)
-        
+
             # Generate a cover letter based on the job ad and the user's CV:
             load_dotenv()
             OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
             cover_letter_generator = CoverLetterGenerator(
                 api_key=OPENAI_API_KEY,
-                job_description=info,
+                job_description=str(info),
                 cv_extract=lazy_user_profile.cv_text,
                 job_type=job_type,
                 salary_expectation=salary_expectation,
                 to_highlight=to_highlight
             )
-            cover_letter = cover_letter_generator.generate_application_letter()
-            return Response(info, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            cover_letter = cover_letter_generator.generate_cover_letter()
+            print(cover_letter)
+            return JsonResponse(cover_letter, status=status.HTTP_201_CREATED, safe=False)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
        

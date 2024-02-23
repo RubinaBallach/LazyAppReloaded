@@ -59,13 +59,13 @@ class CoverLetterGenerator:
                  job_description, cv_extract, 
                  job_type, salary_expectation, 
                  to_highlight):
-        self.client = OpenAI(api_key=api_key)
+        self.api_key = api_key
+        self.client = OpenAI(api_key=self.api_key)
         self.job_description = job_description
         self.cv_extract = cv_extract
         self.job_type = job_type
         self.salary_expectation = salary_expectation
         self.to_highlight = to_highlight
-        self.job_extract = self.relevant_job_info()
 
 
     def relevant_job_info(self):
@@ -85,11 +85,12 @@ class CoverLetterGenerator:
         job_extract = response.choices[0].message.content.strip()
         return job_extract
 
-    def generate_application_letter(self):
+    def generate_cover_letter(self):
         """
         Takes all user information, cv and job extracts and generates an application letter using openai's GPT-4 model.
         """
         # Create a prompt using CV and job description
+        self.job_extract = self.relevant_job_info()
         prompt = f"""Generate an application letter based on the following CV and job description:
                     CV:\n{self.cv_extract}\n\nJob Description:\n{self.job_extract}. 
                     The applicant is looking for a {self.job_type}.
@@ -121,18 +122,46 @@ class CoverLetterGenerator:
         # Format the output
         cover_letter = response.choices[0].message.content.strip()
 
-        print(cover_letter)
+        # print(cover_letter)
         return cover_letter
 
 
 if __name__ == "__main__":
     load_dotenv()
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-    generator = CVTextExtractor(OPENAI_API_KEY,
-                                 "lazyreload/media/cvs/TestCV_Lazy_App.pdf")
-    print(generator.extract_cv_info())
-
-    # # Example usage
+    # generator = CVTextExtractor(OPENAI_API_KEY,
+    #                              "lazyreload/media/cvs/TestCV_Lazy_App.pdf")
     # cv_text = generator.extract_cv_info()
     # print(cv_text)
+    # cv_text = """NAME: Jana Müller
+    # NATIONALITY: German
+    # LOCATION: Berlin, Germany
+    # CONTACT: + 49 176 123 45 678 | jana.mueller@example.com
 
+    # PROFESSION: Python Backend Developer
+    # SKILLS: Python, HTML & CSS, Object-Oriented Programming (OOP), CI/CD, REST API, Amazon Web Services (AWS), Django, Flask, Git, Relational Database Management System (RDBMS), SQL & PostgreSQL, Tkinter, PyQt, Agile Development, and Project Management
+
+    # EDUCATION:
+    # - DCI Digital Career Institute GmbH, Berlin (Python Backend Programming) | 05/2023 - 03/2024
+    # - Udemy: The App Brewery | Dr. Angela (Python Pro Bootcamp) | 10/2023 - 02/2024
+    # - Freie Universität Berlin (Master’s Programme: Art History) | 10/2008 - 03/2015
+    # - Heinrich-Heine-Universität Düsseldorf (Bachelor’s in Art History | Media & Communication Science) | 10/2005 - 04/2008
+
+    # WORK EXPERIENCE:
+    # - Zalando SE, Berlin (Jr. Buyer / Buyer, Women’s Footwear Modern) | 12/2019 - 01/2023
+    # - zLabels GmbH/Zalando SE, Berlin (Purchasing Assistant / Assistant Buyer, Private Label Women’s Footwear) | 08/2015 - 11/2019
+
+    # LANGUAGES: German (Native Speaker), English (C2), French (B2), Italian (A2), Dutch (A1), Latin proficient
+
+    # PERSONAL PROJECTS: Practical Module Python Backend Programming, LazyApp
+
+    # SOCIAL PROFILES: [LinkedIn](https://www.linkedin.com/in/jana-musterfrau), [Github](https://github.com/jamue)
+
+    # Jana is a graduating Python Backend Developer looking for an opportunity to apply her experience from e-Commerce, data-driven buying & product development, and backend programming with a goal to grow her skillset further. She previously held posts at Zalando SE, zLabels GmbH, and IKEA Deutschland GmbH & Co KG."""
+    # job_description = """'job_title': 'Junior Project Manager (gn) Programmkonzeption & Projektmanagement PR-Events', 'company_name': 'Quadriga Media Berlin GmbH', 'company_location': 'Berlin', 'company_info': 'Quadriga ist ein führendes Medien- und Weiterbildungsunternehmen im Herzen Berlins. Wir haben es uns zur Aufgabe gemacht, Professionals weiterzubilden, zu informieren und zu vernetzen. Daran arbeiten wir jeden Tag mit Freude und großer Leidenschaft – ob es um das Veranstalten von Tagungen, Seminare, E-Learnings, Kongressen und Awards geht, das Verlegen von Fachmedien oder die Betreuung von Verbänden. Vor Ort, digital oder hybrid bieten wir unseren Teilnehmer:innen dabei mit kreativen Formaten hochwertige und besondere Weiterbildungserlebnisse.', 'recruiter': 'Cara Perschke', 'recruiter_mail': 'recruiting@quadriga.eu', 'job_description': 'Intro #keepquestioning  Du hast Lust, Programme für Konferenzen zu entwickeln, tief in Trends und Entwicklungen im Bereich Kommunikationsmanagement einzutauchen und PR-Professionals in ihrer persönlichen und beruflichen Weiterentwicklung zu unterstützen?   Du bist kommunikationsstark, kreativ und strukturiert? Dann freuen wir uns auf deine Bewerbung. Als  Junior Project Manager (gn) Programmkonzeption & Projektmanagement PR-Events  bist du verantwortlich dafür, Konferenzen und Kongresse für PR-Professionals zu konzipieren, durchzuführen und weiterzuentwickeln (Konferenz Interne Kommunikation, Konferenz CEO-Kommunikation, Corporate Influencer Day, etc.). In der Position braucht es von dir Interesse für unsere Zielgruppe von PR-Professionals sowie deren Themen und Herausforderungen. Außerdem verfolgst du gerne technologische, ökonomische und gesellschaftspolitische Entwicklungen und kannst deren Bedeutung für verschiedene Branchen abschätzen.   Du hast ein gutes Gespür für Menschen und Themen? Dann bist du genau richtig bei uns im Team. Aufgaben Deine Verantwortung Konzeption und Erstellung hochwertiger Konferenzen und Kongresse (Themenentwicklung, Programmkonzeption, Formatentwicklung wie bspw. Unconferences, kreative Workshop-Formate, etc.)  Verantwortung für das Projektmanagement (Budget, Timings, Schnittstelle zu Marketing, Operations, Event, Einkauf)  Recherche zu relevanten Themen sowie Akquise von passenden Referent*innen inklusive detaillierte Absprache mit Referent*innen bezüglich Inhalt, Aufbau, Didaktik usw.  Qualitätsmanagement und Weiterentwicklung von digitalen und analogen Veranstaltungen  Zuarbeit bei der Erstellung von Marketingmaterial (Broschüre, Website, Newsletter, Anzeigen, Mailings)  Budget- und Umsatzkontrolle der Veranstaltungen im engen Austausch mit Teamlead  Stakeholder Management (Intern und extern, beispielsweise Referent*innen, Partner*innen, Berufsverbände) Anforderungen Deine Skills Abgeschlossenes Studium (bspw. im Bereich Sozialwissenschaften, Medienwissenschaften, Kommunikationswissenschaften, Pädagogik / Erwachsenenbildung oder Wirtschaftswissenschaften)  Mind. ein Jahr Berufserfahrung  Interesse für und bestenfalls Erfahrung mit unserer Zielgruppe von PR-Professionals, deren Themen und Herausforderungen (Interne Kommunikation, CEO-Kommunikation, Social Media Kommunikation, etc.) Wünschenswert: Erfahrung in Projektmanagement  Eigenverantwortliches Arbeiten mit einem hohen Maß an Kooperations- und Teamfähigkeit  Kommunikativ und schreibstark mit Freude am Verfassen von Texten  Strukturierte Arbeitsweise und Problemlösekompetenz  Deutsch auf Muttersprachniveau und gute Englischkenntnisse in Wort und Schrift Benefits Unsere Benefits Professionelle Weiterentwicklung steht bei uns im Fokus – mit individuell gestalteten Weiterbildungstagen sowie alltäglichem Zugang zu unseren relevanten Netzwerken, Publikationen, Events und Weiterbildungsprodukten. Werde Teil eines lebendigen Teams von 150 Mitarbeiter*innen, die gemeinsam intensiv arbeiten, diskutieren und feiern. Quadriga erlebst du Start Up-Kultur in einem etablierten, renommierten Unternehmen – mit viel Raum für neue Ideen, kurzen Entscheidungswegen, Transparenz und „Duz-Kultur“. Eine gute Work-Life-Balance ist uns wichtig. Wir bieten flexible, familienfreundliche Arbeitszeiten, individuelle Lösungen bezüglich des Arbeitsortes (Büro und/oder Mobile Office) und ein abwechslungsreiches Sportprogramm (u.a. in Kooperation mit Urban Sports) sowie eine betriebliche Altersvorsorge an. Arbeite im Herzen von Berlin, mit hervorragender Anbindung an den ÖPNV und grünem Innenhof.'"""
+    # generator = CoverLetterGenerator(OPENAI_API_KEY, job_description, cv_text, "full", 0, "")
+    # # job_extract = generator.relevant_job_info()
+    # # print(job_extract)
+
+    # cover_letter = generator.generate_application_letter()
+    # print(cover_letter)
