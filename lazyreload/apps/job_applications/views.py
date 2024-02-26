@@ -1,12 +1,9 @@
 from django.shortcuts import render
-from rest_framework.views import APIView
-from rest_framework.generics import CreateAPIView, UpdateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from .serializers import LazyJobApplicationSerializer, CompanySerializer
 from .models import LazyJobApplication, Company
 from apps.users.models import LazyUserProfile, LazyUser
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.response import Response
 from rest_framework import status
 from apps.core.utils import CoverLetterGenerator
 from .utils import JobAdImporter
@@ -20,7 +17,7 @@ from django.http import JsonResponse
 # Create your views here.
 class LazyJobApplicationAPIView(ObjectMultipleModelAPIView):
     permission_classes = [IsAuthenticated]
-    querylist =[
+    querylist = [
         {
             'queryset': LazyJobApplication.objects.all(),
             'serializer_class': LazyJobApplicationSerializer
@@ -35,12 +32,8 @@ class LazyJobApplicationAPIView(ObjectMultipleModelAPIView):
         {   'queryser': LazyUser.objects.all(),}
         ]
 
-    # @swagger_auto_schema(
-    #     request_body=LazyJobApplicationSerializer,
-    #     operation_description="Create a new job application",
-    #     operation_summary="Create a new job application",
-    #     responses={201: "Created"}
-    # )
+    @swagger_auto_schema(request_body=LazyJobApplicationSerializer, 
+                         operation_description="Create a new job application",)
     def post(self, request):
         serializer = LazyJobApplicationSerializer(data=request.data)
         if serializer.is_valid():

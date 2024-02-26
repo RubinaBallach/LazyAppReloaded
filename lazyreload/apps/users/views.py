@@ -31,6 +31,7 @@ class CreateUserAPI(CreateAPIView):
     serializer_class = LazyUserSerializer
 
     #Creates a new user and generates an authentication token.
+    @swagger_auto_schema(operation_description="Create a new user", request_body=LazyUserSerializer)
     def perform_create(self, serializer):
         user = serializer.save()
         Token.objects.create(user=user)
@@ -38,10 +39,13 @@ class CreateUserAPI(CreateAPIView):
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
+
+
     def get(self, request, *args, **kwargs):
         return render(request, 'users/login.html')  
 
     # Authenticates a user based on provided credentials and returns a token and user information.
+    @swagger_auto_schema(operation_description="Login to application", request_body=LazyLoginSerializer)
     def post(self, request, *args, **kwargs):
         serializer = LazyLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -49,11 +53,11 @@ class LoginView(APIView):
         password = serializer.validated_data.get('password')
         user = None
         
-        #if validation is true, extract username and password from validated data
+        # if validation is true, extract username and password from validated data
         if username:
             user = authenticate(request, username=username, password=password)
 
-        #if the user object is valid, the user is logged and the token is created or retrieved
+        # if the user object is valid, the user is logged and the token is created or retrieved
         if user:
             login(request, user)  # Log the user in
             token, created = Token.objects.get_or_create(user=user)
@@ -71,6 +75,7 @@ class LazyUpdateUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     # Updates a user's information
+    @swagger_auto_schema(operation_description="Update a user's information", request_body=LazyUpdateUserSerializer)
     def put(self, request, user_id):
         try:
             user = LazyUser.objects.get(user_id=user_id)
@@ -92,6 +97,7 @@ class LazyDeleteUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     # Deletes a user with the specified ID
+    @swagger_auto_schema(operation_description="Delete a user")
     def delete(self, request, user_id):
         try:
             user = LazyUser.objects.get(user_id=user_id)
@@ -109,7 +115,7 @@ class LazyDeleteUserAPIView(APIView):
 class UserListView(ListAPIView):
     queryset = LazyUser.objects.all()
     serializer_class = LazyUserSerializer
-    #permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
 
 
 class LazyUserProfileView(generics.RetrieveUpdateAPIView):
@@ -119,10 +125,12 @@ class LazyUserProfileView(generics.RetrieveUpdateAPIView):
     parser_classes = [MultiPartParser, FormParser] #parsers handle different media types in the request
     renderer_classes = [JSONRenderer]
     
+    @swagger_auto_schema(operation_description="Retrieve a user's profile", request_body=LazyUserProfileSerializer)
     def get_object(self):
         user_profile, created = LazyUserProfile.objects.get_or_create(user=self.request.user)
         return user_profile
-
+    
+    @swagger_auto_schema(operation_description="Update a user's profile", request_body=LazyUserProfileSerializer)
     def post(self, request, *args, **kwargs):
         # If a user profile already exists, update it, otherwise create a new one
         user_profile = self.get_object()

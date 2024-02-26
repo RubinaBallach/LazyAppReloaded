@@ -7,8 +7,6 @@ from PyPDF2 import PdfReader
 
 # All AI supported functionalities are implemented in this file
 
-
-
 class CVTextExtractor:
     def __init__(self, OPENAI_API_KEY, file_path):
         self.client = OpenAI(api_key=OPENAI_API_KEY)
@@ -68,15 +66,11 @@ class CoverLetterGenerator:
                  to_highlight):
         self.api_key = api_key
         self.client = OpenAI(api_key=self.api_key)
-
         self.job_description = job_description
         self.cv_extract = cv_extract
         self.job_type = job_type
         self.salary_expectation = salary_expectation
         self.to_highlight = to_highlight
-
-
-
 
     def relevant_job_info(self):
         """
@@ -98,12 +92,11 @@ class CoverLetterGenerator:
 
     def generate_cover_letter(self):
         """
-        Takes all user information, cv and job extracts and generates an application letter using openai's GPT-4 model.
+        Takes all user information, cv and job description and generates an application letter using openai's GPT-4 model.
         """
-
-
-        # Create a prompt using CV and job description
+        # get job extract from description
         self.job_extract = self.relevant_job_info()
+        # Create a prompt using CV and job description
         prompt = f"""Generate an application letter based on the following CV and job description:
                     CV:\n{self.cv_extract}\n\nJob Description:\n{self.job_extract}. 
                     The applicant is looking for a {self.job_type}.
