@@ -1,5 +1,7 @@
 from django.urls import path
-from .views import CreateUserAPI, LazyUpdateUserAPIView, UserListView, LoginView, LazyUserProfileView, LazyDeleteUserAPIView
+from .views import ( CreateUserAPI, LazyUpdateUserAPIView, UserListView, 
+                    LoginView, LazyUserProfileView, LazyDeleteUserAPIView,
+                    HomeView)
 
 app_name = 'users'
 
@@ -10,4 +12,5 @@ urlpatterns = [
     path('api/user-profile/', LazyUserProfileView.as_view(), name = 'user-profile'),
     path('api/update-user/<uuid:user_id>/', LazyUpdateUserAPIView.as_view(), name='update-user'),
     path('api/delete-user/<uuid:user_id>/', LazyDeleteUserAPIView.as_view(), name='delete-user'),   
+    path('home/',HomeView.as_view(), name='home')
 ]
