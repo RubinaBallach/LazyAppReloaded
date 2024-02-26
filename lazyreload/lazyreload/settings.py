@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "rest_framework.authtoken",
     "drf_yasg",
+    "drf_multiple_model",
 
 
 
@@ -156,11 +157,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = os.path.join(BASE_DIR,"static/")
 
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "lazyreload", "static"),
+    os.path.join(BASE_DIR, "apps/users/static"),
 ]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

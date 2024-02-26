@@ -53,6 +53,7 @@ class JobAdImporter:
         def wrapper(self, *args, **kwargs):
             chrome_options = webdriver.ChromeOptions()
             chrome_options.add_experimental_option("detach", True)
+            chrome_options.add_argument("--headless")
             self.driver = webdriver.Chrome(options=chrome_options)
             try:
                 self.driver.get(self.url)

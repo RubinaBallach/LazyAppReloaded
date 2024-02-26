@@ -32,7 +32,7 @@ class LazyJobApplication(models.Model):
         Company,
         on_delete=models.CASCADE,
         blank=False)
-    job_title = models.CharField(max_length=60, blank=False)
+    job_title = models.CharField(max_length=250, blank=False)
     job_ad_text = models.TextField()
     #additional manually filled information
     recruiter_name = models.CharField(max_length=60, blank=True)
@@ -47,7 +47,7 @@ class LazyJobApplication(models.Model):
         ("temp", "Temporary"),
     ]
     job_type = models.CharField(
-        max_length=20,
+        max_length=60,
         choices=JOB_TYPE_CHOICES,
         default="full"
         )
@@ -78,4 +78,5 @@ class LazyJobApplication(models.Model):
     start_date = models.DateField(blank=True, null=True)
     notes = models.TextField(blank=True)
     application_costs = models.FloatField(blank=True, null=True)
+
 
