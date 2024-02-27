@@ -7,6 +7,12 @@ from django.core.validators import (
     FileExtensionValidator,
 )
 from django.utils.timezone import now
+from apps.core.utils import CVTextExtractor
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 
 
@@ -87,33 +93,6 @@ class LazyUpdateUserSerializer(serializers.ModelSerializer):
         fields = ['email', 'username', 'first_name', 'last_name']
 
 
-
-# class LazyUserProfileSerializer(serializers.ModelSerializer):
-#     use_case = serializers.CharField(max_length=60, required=True)
-#     if use_case == "job" or "both":
-#         cv_file = serializers.FileField(
-#             required=True,
-#             validators=[
-#                 FileExtensionValidator(allowed_extensions=["pdf", "doc", "docx"])
-#             ],
-#         )
-#     else:
-#         cv_file = serializers.FileField(required=False)
-
-#     email = serializers.EmailField(
-#         default=LazyUser.email,
-#         validators=[
-#             EmailValidator(message="Invalid email address"),
-#         ],
-#     )
-#     availability = serializers.DateTimeField(default=now)
-
-#     class Meta:
-#         model = LazyUserProfile
-#         fields = ["use_case", "cv_file", "email"]
-
-
-
 class LazyUserProfileSerializer(serializers.ModelSerializer):
     use_case = serializers.CharField(max_length=60, required=True)
     cv_file = serializers.FileField(
@@ -125,6 +104,22 @@ class LazyUserProfileSerializer(serializers.ModelSerializer):
         validators=[EmailValidator(message="Invalid email address")]
     )
 
+    def create(self, validated_data):
+        cv_text_generator = CVTextExtractor(
+            OPENAI_API_KEY,
+            file_path=validated_data["cv_file"],
+        )
+        cv_text = cv_text_generator.extract_cv_info()
+        user_profile = LazyUserProfile(
+            use_case=validated_data["use_case"],
+            cv_file=validated_data["cv_file"],
+            cv_text=cv_text,
+            email=validated_data["email"],
+
+        )
+        user_profile.save()
+        return user_profile
+
     class Meta:
         model = LazyUserProfile
-        fields = ["use_case", "cv_file", "email"]
+        fields = ["use_case", "cv_file", "email", "cv_text"]

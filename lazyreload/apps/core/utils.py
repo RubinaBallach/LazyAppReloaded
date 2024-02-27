@@ -1,154 +1,176 @@
 
-import openai
-from tqdm import tqdm
+from openai import OpenAI
 import time
+import os
 from dotenv import load_dotenv
-import tiktoken
-import fitz  # You forgot to import fitz
+from PyPDF2 import PdfReader
 
-class ApplicationLetterGenerator:
-    def __init__(self, api_key):
-        self.api_key = api_key
-        openai.api_key = api_key
+# All AI supported functionalities are implemented in this file
 
-    @staticmethod
-    def text_to_pdf(file_path):  #fix the name
+class CVTextExtractor:
+    def __init__(self, OPENAI_API_KEY, file_path):
+        self.client = OpenAI(api_key=OPENAI_API_KEY)
+        self.filepath = file_path
+        self.text_content = self.pdf_to_text()
+
+    def pdf_to_text(self):
+        """
+        Extracts text from the CV in PDF format to text format.
+        """
         try:
-            pdf_document = fitz.open(file_path)
-            text_content = ""
-
-            for page_num in range(pdf_document.page_count):
-                page = pdf_document[page_num]
-                text_content += page.get_text()
-
-            return text_content
+            reader = PdfReader(self.filepath)
+            self.text = ""
+            for page in reader.pages:
+                self.text += page.extract_text()
+            return self.text
+      
         except Exception as e:
             # Handle exceptions such as API errors
             print(f"Error in extract_cv_info: {e}")
             return None
-        
-        """
-        comment the code"""
 
-    def extract_cv_info(self, prompt, text_to_process):
-        #openai.api_key = api_key
-        
+
+    def extract_cv_info(self):
+        """
+        Takes text from CV PDF and returns the most relevant information utilizing openai's GPT-4 model.
+        """
+
+
         try:
             # Make a request to the API
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "You are a sophisticated assistant designed to excel in CV analysis for job applications. Take the CV and the prompt to meticulously gather and present the most relevant information."},
-                    {"role": "user", "content": prompt},
-                    {"role": "assistant", "content": text_to_process}
-                ]
-            )
+            prompt = "Take the CV and meticulously gather and present the most relevant information."
 
-            return response["choices"][0]['message']['content'].strip()
-        
+            response = self.client.chat.completions.create(model="gpt-4",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a sophisticated assistant designed to excel in CV analysis for job applications.",
+                },
+                {"role": "user", "content": prompt},
+                {"role": "assistant", "content": self.text_content},
+            ])
+            cv_extract = response.choices[0].message.content.strip()
+
+            return cv_extract
+
         except Exception as e:
             # Handle exceptions such as API errors
-            print(f"Error in extract_cv_info: {e}")
-            return None
+            return f"Error in extract_cv_info: {e}"
 
 
-    
-    @staticmethod
-    def relevant_job_info(api_key, prompt, text_to_process):  # Added @staticmethod decorator
-        openai.api_key = api_key
+# CV extract from Database, Job Description from Database
+class CoverLetterGenerator:
+    def __init__(self, api_key, 
+                 job_description, cv_extract, 
+                 job_type, salary_expectation, 
+                 to_highlight):
+        self.api_key = api_key
+        self.client = OpenAI(api_key=self.api_key)
+        self.job_description = job_description
+        self.cv_extract = cv_extract
+        self.job_type = job_type
+        self.salary_expectation = salary_expectation
+        self.to_highlight = to_highlight
 
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are a sophisticated assistant designed to excel in job description analysis. Your expertise lies in extracting key details like required skills, qualifications, responsibilities, and any other relevant information. You take a provided job description and a prompt, aiming to meticulously gather and present the most pertinent details."},
-                {"role": "user", "content": prompt},
-                {"role": "assistant", "content": text_to_process}
-            ]
-        )
+    def relevant_job_info(self):
+        """
+        Takes job description and extracts the most relevant information utilizing openai's GPT-4 model.
+        """
 
-        return response['choices'][0]['message']['content'].strip()
+        prompt = "You take a provided job description and a prompt, aiming to meticulously gather and present the most pertinent details."
+        response = self.client.chat.completions.create(model="gpt-4",
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a sophisticated assistant designed to excel in job description analysis. Your expertise is extracting key details like required skills, qualifications, responsibilities, and any other relevant information. ",
+            },
+            {"role": "user", "content": prompt},
+            {"role": "assistant", "content": self.job_description},
+        ])
+        job_extract = response.choices[0].message.content.strip()
+        return job_extract
 
-    @staticmethod
-    def count_tokens(text):
-        encoding = tiktoken.encoding_for_model("gpt-4")
-        num_tokens = len(encoding.encode(text))
-        token_usage_costs = num_tokens / 1000 * 0.02  # Adjust the price per token as needed
-        return num_tokens, token_usage_costs
-
-    def generate_application_letter(self, cv_text, job_description):
-        # Calculate token usage and costs for CV and job description
-        cv_tokens, cv_token_costs = self.count_tokens(cv_text)
-        job_tokens, job_token_costs = self.count_tokens(job_description)
-    
-        # Calculate total token count and costs
-        total_tokens = cv_tokens + job_tokens
-        total_token_costs = cv_token_costs + job_token_costs
-    
+    def generate_cover_letter(self):
+        """
+        Takes all user information, cv and job description and generates an application letter using openai's GPT-4 model.
+        """
+        # get job extract from description
+        self.job_extract = self.relevant_job_info()
         # Create a prompt using CV and job description
-        prompt = f"Generate an application letter based on the following CV and job description:\n\nCV:\n{cv_text}\n\nJob Description:\n{job_description}\n\nApplication Letter:"
-    
-        # Initialize progress bar
-        pbar = tqdm(total=1, desc="API Call", unit="request")
-    
+        prompt = f"""Generate an application letter based on the following CV and job description:
+                    CV:\n{self.cv_extract}\n\nJob Description:\n{self.job_extract}. 
+                    The applicant is looking for a {self.job_type}.
+                    """
+        if self.salary_expectation != 0:
+            prompt += f"""The salary expectation is {self.salary_expectation} per year."""
+        if self.to_highlight != "": 
+            prompt += f"""Highlight the following: {self.to_highlight}"""
+
         start_time = time.time()
 
         # Make a request to the API using v1/chat/completions
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are an AI assistant that helps users generate application letters."},
-                {"role": "user", "content": prompt}
-            ]
-        )
 
-        # Check the status of the API call
-        while 'status' in response and response['status'] == 'in_progress':
-            time.sleep(1)  # Adjust the interval as needed
-            response = openai.Completion.retrieve(response['id'])
+        response = self.client.chat.completions.create(model="gpt-4",
+        messages=[
+            {
+                "role": "system",
+                "content": "You are an AI assistant that helps users generate application letters.",
+            },
+            {"role": "user", "content": prompt},
+        ])
 
-        end_time = time.time()
-
-        # Update progress bar
-        pbar.update(1)
-        pbar.close()
 
         # Calculate time consumed
+        end_time = time.time()
         elapsed_time = end_time - start_time
-        print(f"\nTime Consumed: {elapsed_time:.2f} seconds")
+        print(
+            f"\nTime Consumed: {elapsed_time:.2f} seconds"
+        )  # Testing puposes remove in production
 
         # Format the output
-        generated_letter = response['choices'][0]['message']['content'].strip()
-        output = (
-            f"\nGenerated Application Letter:\n{generated_letter}\n"
-            f"\nTotal Token Usage: {total_tokens} tokens, Total Cost: ${total_token_costs:.5f}\n"
-            f"Token Usage for CV: {cv_tokens} tokens, Cost: ${cv_token_costs:.5f}\n"
-            f"Token Usage for Job Description: {job_tokens} tokens, Cost: ${job_token_costs:.5f}"
-        )
 
-        print(output)
+        cover_letter = response.choices[0].message.content.strip()
+
+        # print(cover_letter)
+        return cover_letter
+
 
 if __name__ == "__main__":
-    api_key = ""  # Replace with your actual OpenAI API key
-    generator = ApplicationLetterGenerator(api_key)
+    load_dotenv()
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+    # generator = CVTextExtractor(OPENAI_API_KEY,
+    #                              "lazyreload/media/cvs/TestCV_Lazy_App.pdf")
+    # cv_text = generator.extract_cv_info()
+    # print(cv_text)
+    # cv_text = """NAME: Jana Müller
+    # NATIONALITY: German
+    # LOCATION: Berlin, Germany
+    # CONTACT: + 49 176 123 45 678 | jana.mueller@example.com
 
-    # Example usage
-    cv_text = generator.text_to_pdf("/home/user/Documents/DCI_CODE/LAZY/LAZY2024/lazzy skizzen/EN CV_AlexanderSimakov.pdf")  # Provide the correct path
+    # PROFESSION: Python Backend Developer
+    # SKILLS: Python, HTML & CSS, Object-Oriented Programming (OOP), CI/CD, REST API, Amazon Web Services (AWS), Django, Flask, Git, Relational Database Management System (RDBMS), SQL & PostgreSQL, Tkinter, PyQt, Agile Development, and Project Management
 
-    # Read job description from a text file
-    job_description_file_path = "/home/user/Documents/DCI_CODE/LAZY/LAZY2024/lazzy skizzen/job_string.txt"  # Provide the correct path
-    with open(job_description_file_path, 'r', encoding='utf-8') as file:
-        job_description = file.read()
+    # EDUCATION:
+    # - DCI Digital Career Institute GmbH, Berlin (Python Backend Programming) | 05/2023 - 03/2024
+    # - Udemy: The App Brewery | Dr. Angela (Python Pro Bootcamp) | 10/2023 - 02/2024
+    # - Freie Universität Berlin (Master’s Programme: Art History) | 10/2008 - 03/2015
+    # - Heinrich-Heine-Universität Düsseldorf (Bachelor’s in Art History | Media & Communication Science) | 10/2005 - 04/2008
 
-    if cv_text is not None:
-        print("Extracted CV Text:")
-        print(cv_text)
+    # WORK EXPERIENCE:
+    # - Zalando SE, Berlin (Jr. Buyer / Buyer, Women’s Footwear Modern) | 12/2019 - 01/2023
+    # - zLabels GmbH/Zalando SE, Berlin (Purchasing Assistant / Assistant Buyer, Private Label Women’s Footwear) | 08/2015 - 11/2019
 
-        prompt = "Your prompt here"
-        relevant_job_info = generator.relevant_job_info(api_key, prompt, job_description)
-        print(f"Processed Job Information:\n{relevant_job_info}")
+    # LANGUAGES: German (Native Speaker), English (C2), French (B2), Italian (A2), Dutch (A1), Latin proficient
 
-        generator.generate_application_letter(cv_text, relevant_job_info)
-    else:
-        print("Failed to extract text from the CV.")
+    # PERSONAL PROJECTS: Practical Module Python Backend Programming, LazyApp
 
+    # SOCIAL PROFILES: [LinkedIn](https://www.linkedin.com/in/jana-musterfrau), [Github](https://github.com/jamue)
 
+    # Jana is a graduating Python Backend Developer looking for an opportunity to apply her experience from e-Commerce, data-driven buying & product development, and backend programming with a goal to grow her skillset further. She previously held posts at Zalando SE, zLabels GmbH, and IKEA Deutschland GmbH & Co KG."""
+    # job_description = """'job_title': 'Junior Project Manager (gn) Programmkonzeption & Projektmanagement PR-Events', 'company_name': 'Quadriga Media Berlin GmbH', 'company_location': 'Berlin', 'company_info': 'Quadriga ist ein führendes Medien- und Weiterbildungsunternehmen im Herzen Berlins. Wir haben es uns zur Aufgabe gemacht, Professionals weiterzubilden, zu informieren und zu vernetzen. Daran arbeiten wir jeden Tag mit Freude und großer Leidenschaft – ob es um das Veranstalten von Tagungen, Seminare, E-Learnings, Kongressen und Awards geht, das Verlegen von Fachmedien oder die Betreuung von Verbänden. Vor Ort, digital oder hybrid bieten wir unseren Teilnehmer:innen dabei mit kreativen Formaten hochwertige und besondere Weiterbildungserlebnisse.', 'recruiter': 'Cara Perschke', 'recruiter_mail': 'recruiting@quadriga.eu', 'job_description': 'Intro #keepquestioning  Du hast Lust, Programme für Konferenzen zu entwickeln, tief in Trends und Entwicklungen im Bereich Kommunikationsmanagement einzutauchen und PR-Professionals in ihrer persönlichen und beruflichen Weiterentwicklung zu unterstützen?   Du bist kommunikationsstark, kreativ und strukturiert? Dann freuen wir uns auf deine Bewerbung. Als  Junior Project Manager (gn) Programmkonzeption & Projektmanagement PR-Events  bist du verantwortlich dafür, Konferenzen und Kongresse für PR-Professionals zu konzipieren, durchzuführen und weiterzuentwickeln (Konferenz Interne Kommunikation, Konferenz CEO-Kommunikation, Corporate Influencer Day, etc.). In der Position braucht es von dir Interesse für unsere Zielgruppe von PR-Professionals sowie deren Themen und Herausforderungen. Außerdem verfolgst du gerne technologische, ökonomische und gesellschaftspolitische Entwicklungen und kannst deren Bedeutung für verschiedene Branchen abschätzen.   Du hast ein gutes Gespür für Menschen und Themen? Dann bist du genau richtig bei uns im Team. Aufgaben Deine Verantwortung Konzeption und Erstellung hochwertiger Konferenzen und Kongresse (Themenentwicklung, Programmkonzeption, Formatentwicklung wie bspw. Unconferences, kreative Workshop-Formate, etc.)  Verantwortung für das Projektmanagement (Budget, Timings, Schnittstelle zu Marketing, Operations, Event, Einkauf)  Recherche zu relevanten Themen sowie Akquise von passenden Referent*innen inklusive detaillierte Absprache mit Referent*innen bezüglich Inhalt, Aufbau, Didaktik usw.  Qualitätsmanagement und Weiterentwicklung von digitalen und analogen Veranstaltungen  Zuarbeit bei der Erstellung von Marketingmaterial (Broschüre, Website, Newsletter, Anzeigen, Mailings)  Budget- und Umsatzkontrolle der Veranstaltungen im engen Austausch mit Teamlead  Stakeholder Management (Intern und extern, beispielsweise Referent*innen, Partner*innen, Berufsverbände) Anforderungen Deine Skills Abgeschlossenes Studium (bspw. im Bereich Sozialwissenschaften, Medienwissenschaften, Kommunikationswissenschaften, Pädagogik / Erwachsenenbildung oder Wirtschaftswissenschaften)  Mind. ein Jahr Berufserfahrung  Interesse für und bestenfalls Erfahrung mit unserer Zielgruppe von PR-Professionals, deren Themen und Herausforderungen (Interne Kommunikation, CEO-Kommunikation, Social Media Kommunikation, etc.) Wünschenswert: Erfahrung in Projektmanagement  Eigenverantwortliches Arbeiten mit einem hohen Maß an Kooperations- und Teamfähigkeit  Kommunikativ und schreibstark mit Freude am Verfassen von Texten  Strukturierte Arbeitsweise und Problemlösekompetenz  Deutsch auf Muttersprachniveau und gute Englischkenntnisse in Wort und Schrift Benefits Unsere Benefits Professionelle Weiterentwicklung steht bei uns im Fokus – mit individuell gestalteten Weiterbildungstagen sowie alltäglichem Zugang zu unseren relevanten Netzwerken, Publikationen, Events und Weiterbildungsprodukten. Werde Teil eines lebendigen Teams von 150 Mitarbeiter*innen, die gemeinsam intensiv arbeiten, diskutieren und feiern. Quadriga erlebst du Start Up-Kultur in einem etablierten, renommierten Unternehmen – mit viel Raum für neue Ideen, kurzen Entscheidungswegen, Transparenz und „Duz-Kultur“. Eine gute Work-Life-Balance ist uns wichtig. Wir bieten flexible, familienfreundliche Arbeitszeiten, individuelle Lösungen bezüglich des Arbeitsortes (Büro und/oder Mobile Office) und ein abwechslungsreiches Sportprogramm (u.a. in Kooperation mit Urban Sports) sowie eine betriebliche Altersvorsorge an. Arbeite im Herzen von Berlin, mit hervorragender Anbindung an den ÖPNV und grünem Innenhof.'"""
+    # generator = CoverLetterGenerator(OPENAI_API_KEY, job_description, cv_text, "full", 0, "")
+    # # job_extract = generator.relevant_job_info()
+    # # print(job_extract)
+
+    # cover_letter = generator.generate_application_letter()
+    # print(cover_letter)

@@ -51,11 +51,11 @@ class LazyUserProfile(models.Model):
     user = models.OneToOneField(
         LazyUser, on_delete=models.CASCADE, related_name="profile"
     )
-    USE_CASE_CHOICES = {
-        "job": "Job Applications",
-        "flat": "Flat Applications",
-        "both": "Job&Flat Applications",
-    }
+    USE_CASE_CHOICES = [
+        ("job", "Job Applications"),
+        ("flat", "Flat Applications"),
+        ("both", "Job&Flat Applications"),
+    ]
     use_case = models.CharField(max_length=60, choices=USE_CASE_CHOICES, default="job")
     cv_file = models.FileField(upload_to="cvs", blank=True, null=True)
     cv_text = models.TextField(blank=True, null=True)

@@ -11,9 +11,6 @@ class JobAdImporter:
         self.headers = {
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
             }
-        self.driver = None
-        self.soup = None
-
 
     def retrieve_information(self):
         """switchboard to select the correct method for information retrieval based on the url."""
@@ -56,6 +53,7 @@ class JobAdImporter:
         def wrapper(self, *args, **kwargs):
             chrome_options = webdriver.ChromeOptions()
             chrome_options.add_experimental_option("detach", True)
+            chrome_options.add_argument("--headless")
             self.driver = webdriver.Chrome(options=chrome_options)
             try:
                 self.driver.get(self.url)
@@ -346,7 +344,7 @@ class JobAdImporter:
             }
     
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
     
     # Testing
     #indeed_ad = JobAdImporter('https://de.indeed.com/jobs?q=python&l=berlin&from=searchOnHP&advn=95263882141188&vjk=2fcd8a5b9ce55739')
