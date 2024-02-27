@@ -13,6 +13,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.renderers import JSONRenderer
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate, login
+
 from drf_yasg.utils import swagger_auto_schema
 from apps.core.utils import CVTextExtractor
 from dotenv import load_dotenv
@@ -163,6 +164,9 @@ class LazyUserProfileView(generics.RetrieveUpdateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+class HomeView(APIView):
+    def get(self, request):
+        return render (request, 'users/home.html')
 
 
     
