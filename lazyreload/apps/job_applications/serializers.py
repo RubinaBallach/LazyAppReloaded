@@ -17,6 +17,7 @@ class CompanySerializer(serializers.ModelSerializer):
         )
 
 class LazyJobApplicationSerializer(serializers.Serializer):
+    profile_id = serializers.IntegerField(read_only=True)
     add_link = serializers.URLField(max_length=250)
     job_type = serializers.CharField(max_length=60, default="full")
     salary_expectation = serializers.IntegerField(default=0)
@@ -27,21 +28,17 @@ class LazyJobApplicationSerializer(serializers.Serializer):
         model = LazyJobApplication
         fields = (
             "add_link",
+            "job_title"
             "job_type",
             "salary_expectation",
-            "to_highlight",      
+            "to_highlight",
+            "job"      
      )
 
 
     def create(self, validated_data): 
         return LazyJobApplication.objects.create(**validated_data)
-    
+
+
     def update(self, instance, validated_data):
-        instance.add_link = validated_data.get("add_link", instance.add_link)
-        instance.job_type = validated_data.get("job_type", instance.job_type)
-        instance.salary_expectation = validated_data.get("salary_expectation", instance.salary_expectation)
-        instance.to_highlight = validated_data.get("to_highlight", instance.to_highlight)
-        instance.save()
-        return instance
-        
-    
+        return LazyJobApplication.objects.update(**validated_data)

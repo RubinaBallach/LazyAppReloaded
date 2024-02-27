@@ -156,7 +156,7 @@ class LazyUserProfileView(generics.RetrieveUpdateAPIView):
         # Update the user profile fields with the validated data
         user_profile = self.get_object()
         user_profile.use_case = serializer.validated_data.get('use_case')
-        user_profile.cv_file = cv_file  
+        user_profile.cv_file = serializer.validated_data.get('cv_file')  
         user_profile.email = serializer.validated_data.get('email')
         user_profile.cv_text = cv_text
         user_profile.save()
@@ -166,7 +166,7 @@ class LazyUserProfileView(generics.RetrieveUpdateAPIView):
 
 class HomeView(APIView):
     def get(self, request):
-        return render (request, 'users/home.html')
+        return render (request, 'core/home.html')
 
 
     

@@ -110,7 +110,7 @@ class JobAdImporter:
             "job_title": job_title.text.replace("- job post", "").strip(),
             "company_name": company_name.text.strip(),
             "company_location": company_location.text.strip(),
-            "job_description": job_description.text.replace("\n"," ").strip()
+            "job_description": job_description.text.strip()
             }
      
     @soup_decorator
@@ -130,7 +130,7 @@ class JobAdImporter:
             "job_title": job_title.text.replace("Stellenausschreibung: ", "").strip(),
             "company_name": company_name.text.strip(),
             "company_location": company_location,
-            "job_description": job_description.text.replace("\n"," ").strip()
+            "job_description": job_description.text.strip()
             }
 
     @soup_decorator
@@ -149,7 +149,7 @@ class JobAdImporter:
             "job_title": job_title,
             "company_name": company_name,
             "company_location": company_location,
-            "job_description": job_description.text.replace("\n"," ").strip()
+            "job_description": job_description.text.strip()
             }
 
     @soup_decorator
@@ -166,7 +166,7 @@ class JobAdImporter:
             "job_title": job_title.text.strip(),
             "company_name": company_name.text.strip(),
             "company_location": company_location.text.strip(),
-            "job_description": job_description.text.replace("\n"," ").strip()
+            "job_description": job_description.text.strip()
             }
 
     @soup_decorator
@@ -182,7 +182,7 @@ class JobAdImporter:
         company_info = self.soup.find("article", class_="listing-content-provider-1lx1y7n")
         tasks = self.soup.find("div", class_="listing-content-provider-15mhjzh at-section-text-description-content listingContentBrandingColor")
         profile = self.soup.find("div", class_="listing-content-provider-15mhjzh at-section-text-profile-content listingContentBrandingColor")
-        job_description = tasks.text.replace("\n"," ").replace("\xa0","").strip() + " " + profile.text.replace("\n"," ").replace("\xa0","").strip()
+        job_description = tasks.text.replace("\xa0","").strip() + " " + profile.text.replace("\xa0","").strip()
 
 
         return {
@@ -191,7 +191,7 @@ class JobAdImporter:
             "recruiter_name": recruiter_name.text.strip(),
             "recruiter_phone": recruiter_phone.text.strip(),
             "company_location": company_location.text.strip(),
-            "company_info": company_info.text.replace("\n"," ").replace("\xa0"," ").strip(),
+            "company_info": company_info.text.replace("\xa0"," ").strip(),
             "job_description": job_description
             }
 
@@ -236,8 +236,8 @@ class JobAdImporter:
             "job_title": job_title.text.strip(),
             "company_name": company_name.text.strip(),
             "company_location": company_location.text.strip(),
-            "company_info": company_info.text.replace("\n"," ").strip(),
-            "job_description": job_description.text.replace("\n"," ").strip(),
+            "company_info": company_info.text.strip(),
+            "job_description": job_description.text.strip(),
             }
   
     @soup_decorator
@@ -309,7 +309,7 @@ class JobAdImporter:
             "job_title": job_title.text.strip(),
             "company_name": company_name.text.strip(),
             "company_location": company_location.text.strip(),
-            "company_info": company_info.text.replace("\n"," ").strip(),
+            "company_info": company_info.text.strip(),
             "recruiter": recruiter.text.strip(),
             "recruiter_mail": recruiter_mail.text.strip(),
             "job_description": job_description.text.replace("\n", " ").strip()
@@ -340,7 +340,7 @@ class JobAdImporter:
             "job_title": job_title,
             "company_name": company_name.text.strip(),
             "company_location": company_location.text.strip(),
-            "job_description": job_description.text.replace("\n"," ").strip()
+            "job_description": job_description.text.strip()
             }
     
 
