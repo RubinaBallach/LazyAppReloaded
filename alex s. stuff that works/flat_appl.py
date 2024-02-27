@@ -96,7 +96,7 @@ class  RentApplicationGenerator:
         return cover_letter
 
 if __name__ == "__main__":
-    api_key = "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"
+    api_key = "API_KEY"
     user_criteria = {
     "Name": "Max Mustermann",
     "Date of Birth": "01/01/1990",

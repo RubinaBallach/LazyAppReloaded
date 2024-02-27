@@ -101,7 +101,19 @@ class FlatAdImporter:
             total_cost_value = total_cost_element.text.strip()
             print("Total cost:", total_cost_value)
 
-
+        return {
+            "Job title": title,
+            "City": city,
+            "Postal Code": postal_code,
+            "District": district,
+            "Kaltmiete": kaltmiete,
+            "Space": space,
+            "Deposit": deposit,
+            "Rooms": rooms,
+            "Extra costs": extra_costs_value,
+            "Heating costs": heating_costs_value,
+            "Total cost": total_cost_value
+        }
     # available_element = "" # could not fix the availability of the flat
     
 
