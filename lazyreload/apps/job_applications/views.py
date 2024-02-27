@@ -115,3 +115,6 @@ class LazyJobApplicationAPIView(ObjectMultipleModelAPIView):
             print(cover_letter)
             return JsonResponse(cover_letter, status=status.HTTP_201_CREATED, safe=False)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# View to correct coverletter and see application details
+    
