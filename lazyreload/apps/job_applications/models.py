@@ -33,7 +33,7 @@ class LazyJobApplication(models.Model):
         on_delete=models.CASCADE)
     job_title = models.CharField(max_length=250, blank=False)
     job_ad_text = models.TextField()
-    #additional manually filled information
+    # additional manually filled information
     recruiter_name = models.CharField(max_length=60, blank=True)
     recruiter_mail = models.EmailField(max_length=60, blank=True)
     recruiter_phone = models.CharField(max_length=60, blank=True)

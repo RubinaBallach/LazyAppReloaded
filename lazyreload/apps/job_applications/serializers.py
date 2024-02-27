@@ -17,6 +17,7 @@ class CompanySerializer(serializers.ModelSerializer):
         )
 
 class LazyJobApplicationSerializer(serializers.Serializer):
+    profile_id = serializers.IntegerField(read_only=True)
     add_link = serializers.URLField(max_length=250)
     job_type = serializers.CharField(max_length=60, default="full")
     salary_expectation = serializers.IntegerField(default=0)
