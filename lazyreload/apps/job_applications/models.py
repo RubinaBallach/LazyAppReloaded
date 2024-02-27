@@ -30,8 +30,7 @@ class LazyJobApplication(models.Model):
     # information to be scraped from job ad
     company_id = models.ForeignKey(
         Company,
-        on_delete=models.CASCADE,
-        blank=False)
+        on_delete=models.CASCADE)
     job_title = models.CharField(max_length=250, blank=False)
     job_ad_text = models.TextField()
     #additional manually filled information
@@ -70,6 +69,7 @@ class LazyJobApplication(models.Model):
     
 
     job_type = models.CharField(max_length=50, choices=JOB_TYPE_CHOICES)
+    cover_letter = models.TextField(blank=True)
     status = models.CharField(max_length=50, choices=APPLICANT_STATUS_CHOICES, default="pending")
     application_send_date = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=APPLICANT_STATUS_CHOICES, default="apply")

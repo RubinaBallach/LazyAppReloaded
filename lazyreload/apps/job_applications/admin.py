@@ -3,5 +3,5 @@ from .models import Company, LazyJobApplication
 
 # Register your models here.
 
-admin.register(Company)
-admin.register(LazyJobApplication)
+admin.site.register(Company)
+admin.site.register(LazyJobApplication)
