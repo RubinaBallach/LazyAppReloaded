@@ -3,7 +3,7 @@ from openai import OpenAI
 import time
 import os
 from dotenv import load_dotenv
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 
 # All AI supported functionalities are implemented in this file
 
