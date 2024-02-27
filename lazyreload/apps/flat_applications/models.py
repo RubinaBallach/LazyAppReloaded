@@ -51,3 +51,47 @@ class Landlord(models.Model):
 #         Landlord,
 #         on_delete=models.CASCADE,
 #         blank=False)
+
+
+
+class ApplicationLetter(models.Model):
+    # Personal Information
+    full_name = models.CharField(max_length=255)
+    date_of_birth = models.DateField()
+    current_address = models.TextField()
+    marital_status = models.CharField(max_length=50) #maybe set single as default? not sure
+
+    # Professional Information
+    current_occupation = models.CharField(max_length=255)
+    monthly_income = models.DecimalField(max_digits=10, decimal_places=2)
+
+    # Financial Stability
+    stable_income_available = models.BooleanField(default=True)
+    guarantee_available = models.BooleanField(default=False)
+    clean_schufa_report = models.BooleanField(default=True)
+
+    # References
+    references_available = models.BooleanField(default=False)
+
+    # Intent to Lease
+    long_term_leasing_desire = models.BooleanField(default=True)
+
+    # Responsibility
+    quiet_and_tidy_tenant = models.BooleanField(default=True)
+    
+
+    # Pets
+    pets = models.BooleanField(default=False)
+
+    # Contact Information
+    phone_number = models.CharField(max_length=20)
+    email_address = models.EmailField()
+
+    
+
+    # Quantity of Children and People Moving In
+    quantity_of_children = models.PositiveIntegerField(default=0)
+    quantity_of_people_moving_in = models.PositiveIntegerField(default=1)
+
+    # Additional Notes
+    additional_notes = models.TextField(blank=True, null=True)
