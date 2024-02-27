@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView, UpdateAPIView, ListAPIView
@@ -36,10 +36,12 @@ class CreateUserAPI(CreateAPIView):
         Token.objects.create(user=user)
 
 
+
+
 class LoginView(APIView):
     permission_classes = [AllowAny]
     def get(self, request, *args, **kwargs):
-        return render(request, 'users/login.html')  
+        return render(request, 'core/login.html')  
 
     # Authenticates a user based on provided credentials and returns a token and user information.
     def post(self, request, *args, **kwargs):
@@ -62,7 +64,7 @@ class LoginView(APIView):
                 'token': token.key,
                 'user': user_serializer.data
             }
-            return Response(response_data, status=status.HTTP_200_OK)
+            return render(request, 'core/userprofile.html', {'username': user.username})
         else:
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
       
@@ -157,7 +159,7 @@ class LazyUserProfileView(generics.RetrieveUpdateAPIView):
 
 class HomeView(APIView):
     def get(self, request):
-        return render (request, 'users/home.html')
+        return render (request, 'core/home.html')
 
 
     
