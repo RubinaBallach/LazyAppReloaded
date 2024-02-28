@@ -27,7 +27,7 @@ class FlatApplicationLetterGenerator:
         self.additional_notes = additional_notes
         self.api_key = api_key 
 
-    def _generate_prompt(self):
+    def generate_prompt(self):
         return f"""
         Schreibe eine Bewerbung für die Wohnung. Die Wohnung ist in {self.listing_info["City"]} und hat {self.listing_info["Rooms"]} Zimmer. 
         Die Kaltmiete beträgt {self.listing_info["Kaltmiete"]} und die Wohnfläche beträgt {self.listing_info["Space"]}. 
@@ -104,7 +104,7 @@ class FlatApplicationLetterGenerator:
                     "role": "system",
                     "content": "Du bist ein KI Assistent, der eine Bewerbung für eine Wohnung schreibt.",
                 },
-                {"role": "user", "content": self._generate_prompt()},
+                {"role": "user", "content": self.generate_prompt()},
             ],
         )
 
