@@ -26,7 +26,7 @@ class LazyJobApplication(models.Model):
     profile_id = models.ForeignKey(
         "users.LazyUserProfile",
         on_delete=models.CASCADE)
-    add_link = models.URLField(max_length=250, blank=False)
+    ad_link = models.URLField(max_length=250, blank=False)
     # information to be scraped from job ad
     company_id = models.ForeignKey(
         Company,

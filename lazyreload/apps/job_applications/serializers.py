@@ -17,22 +17,28 @@ class CompanySerializer(serializers.ModelSerializer):
         )
 
 class LazyJobApplicationSerializer(serializers.Serializer):
-    profile_id = serializers.IntegerField(read_only=True)
-    add_link = serializers.URLField(max_length=250)
+    lazy_application_id = serializers.IntegerField(read_only=True)
+    profile_id = serializers.PrimaryKeyRelatedField(read_only=True)
+    company_id = serializers.PrimaryKeyRelatedField(read_only=True)
+    company = CompanySerializer(required=False)
+    ad_link = serializers.URLField(max_length=250)
     job_type = serializers.CharField(max_length=60, default="full")
     salary_expectation = serializers.IntegerField(default=0)
     to_highlight = serializers.CharField(max_length=500, default="")
-    company = CompanySerializer(required=False)
+    cover_letter = serializers.CharField(style={'base_template': 'textarea.html'})
+    
 
     class Meta:
         model = LazyJobApplication
         fields = (
-            "add_link",
+            "lazy_application_id",
+            "ad_link",
             "job_title"
             "job_type",
             "salary_expectation",
             "to_highlight",
-            "job"      
+            "cover_letter",  
+            "company",  
      )
 
 
