@@ -2,9 +2,9 @@ name: Lazyapp CI
 
 on:
   push:
-    branches: [ main, login, Testing ]
+    branches: [ main, testing ]
   pull_request:
-    branches: [ main, login, Testing ]
+    branches: [ main, testing ]
 
 jobs:
   build:
