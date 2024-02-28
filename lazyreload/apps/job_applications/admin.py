@@ -11,8 +11,8 @@ class CompanyAdmin(admin.ModelAdmin):
 
 @admin.register(LazyJobApplication)
 class LazyJobApplicationAdmin(admin.ModelAdmin):
-    readonly_fields = ['lazy_application_id', 'profile_id', 'company_id', 'add_link']
-    fields = ['lazy_application_id', 'profile_id', 'company_id','add_link', 'job_title', 'job_ad_text',
+    readonly_fields = ['lazy_application_id', 'profile_id', 'company_id', 'ad_link']
+    fields = ['lazy_application_id', 'profile_id', 'company_id','ad_link', 'job_title', 'job_ad_text',
               'recruiter_name', 'recruiter_mail', 'recruiter_phone',
               'job_type', 'salary_expectation', 'to_highlight']
 

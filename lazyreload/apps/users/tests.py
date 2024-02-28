@@ -11,14 +11,14 @@ User = get_user_model()
 class UserAPITestCase(APITestCase):
     
     def setUp(self):
-        #create user for auth test
+        # create user for auth test
         self.test_user = User.objects.create_user('testuser', 'test@example.com', 'testpassword')
         self.test_user_token = Token.objects.create(user=self.test_user)
-        self.create_user_url = reverse('create-user')
-        self.login_url = reverse('login')
-        self.list_users_url = reverse('list-users')
-        self.user_profile_url = reverse('user-profile', kwargs={'user_id': self.test_user.user_id})
-        self.update_user_url = reverse('update-user', kwargs={'user_id': self.test_user.user_id})
+        self.create_user_url = reverse('users:create-user')
+        self.login_url = reverse('users:login')
+        self.list_users_url = reverse('users:list-users')
+        self.user_profile_url = reverse('users:user-profile', kwargs={'user_id': self.test_user.user_id})
+        self.update_user_url = reverse('users:update-user', kwargs={'user_id': self.test_user.user_id})
 
 
     def test_create_user_success(self):
@@ -68,7 +68,7 @@ class UserAPITestCase(APITestCase):
         
        
     def test_users_list_authenticated(self):
-        
+        # superuser needed - different permission class
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.test_user_token.key)
         response = self.client.get(self.list_users_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
