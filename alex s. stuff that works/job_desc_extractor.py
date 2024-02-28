@@ -1,30 +1,29 @@
-import openai
+from openai import OpenAI
+
+client = OpenAI(api_key=api_key)
 from tqdm import tqdm
 import time
 import os
 from dotenv import load_dotenv
 
 def process_job_description(api_key, prompt, text_to_process):
-    openai.api_key = api_key
     
     # Start the timer
     start_time = time.time()
 
     # Make a request to the API
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are a sophisticated assistant designed to excel in job description analysis. Your expertise lies in extracting key details like required skills, qualifications, responsibilities, and any other relevant information. You take a provided job description and a prompt, aiming to meticulously gather and present the most pertinent details."},
-            {"role": "user", "content": prompt},
-            {"role": "assistant", "content": text_to_process}
-        ]
-    )
+    response = client.chat.completions.create(model="gpt-4",
+    messages=[
+        {"role": "system", "content": "You are a sophisticated assistant designed to excel in job description analysis. Your expertise lies in extracting key details like required skills, qualifications, responsibilities, and any other relevant information. You take a provided job description and a prompt, aiming to meticulously gather and present the most pertinent details."},
+        {"role": "user", "content": prompt},
+        {"role": "assistant", "content": text_to_process}
+    ])
 
     # Stop the timer
     end_time = time.time()
     elapsed_time = end_time - start_time
 
-    return response['choices'][0]['message']['content'].strip(), elapsed_time
+    return response.choices[0].message.content.strip(), elapsed_time
 
 if __name__ == "__main__":
     # Example usage
