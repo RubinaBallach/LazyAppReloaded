@@ -69,7 +69,8 @@ class LoginView(APIView):
                 'token': token.key,
                 'user': user_serializer.data
             }
-            return render(request, 'core/userprofile.html', {'username': user.username})
+            return Response(response_data, status=status.HTTP_200_OK)
+            # return render(request, 'core/userprofile.html', {'username': user.username}) find solution
         else:
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
       
