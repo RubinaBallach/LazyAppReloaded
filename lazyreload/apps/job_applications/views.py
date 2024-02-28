@@ -11,7 +11,6 @@ from apps.core.utils import CoverLetterGenerator
 from .utils import JobAdImporter
 from dotenv import load_dotenv
 import os
-from django.views.generic import ListView, DetailView, UpdateView, DeleteView
 from drf_multiple_model.views import ObjectMultipleModelAPIView
 from django.http import HttpRequest, HttpResponse, JsonResponse
 
@@ -39,14 +38,14 @@ class LazyJobApplicationAPIView(ObjectMultipleModelAPIView):
 
     @swagger_auto_schema(operation_description="Retrieve job application",request_body=LazyJobApplicationSerializer)
     def get_object(self):
-        job_application, created = LazyJobApplication.objects.get_or_create(lazy_applcation_id=self.request.lazy_application_id)
-        return job_application    
+        job_application, created = LazyJobApplication.objects.get_or_create(lazy_application_id=self.request.lazy_application_id)
+        return job_application
 
     @swagger_auto_schema(request_body=LazyJobApplicationSerializer, 
                          operation_description="Create a new job application",)
     def post(self, request):
         # instantiate scrape job information class
-        job_scraper = JobAdImporter(request.data["add_link"])
+        job_scraper = JobAdImporter(request.data["ad_link"])
         info = job_scraper.retrieve_information()
         # Get the LazyUser and LazyUserProfile associated with the request:
         lazy_user = LazyUser.objects.get(username=request.user)
@@ -117,36 +116,39 @@ class LazyJobApplicationAPIView(ObjectMultipleModelAPIView):
         job_application_serializer.save(cover_letter=cover_letter)
         return JsonResponse(cover_letter, status=status.HTTP_201_CREATED, safe=False)
 
-# View to correct coverletter and see application details
-# class LazyJobApplicationUpdateView(UpdateView):
-#     model = LazyJobApplication
-#     pass
-
-
-# class LazyJobApplicationDetailView(DetailView):
-#     model = LazyJobApplication
-#     template_name = 'core/job_application_detail.html'
-#     context_object_name = 'job_application'
-
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         username = self.kwargs ["username"]
-#         user = get_object_or_404(LazyUser, username=username)
-#         context['user'] = user
-#         company_name = self.kwargs["companyname"]
-#         company = get_object_or_404(Company, company_name=company_name)
-#         context['company'] = company
-#         return context
-    
-#     def get_queryset(self):
-#         username = self.kwargs["username"]
-#         user = get_object_or_404(LazyUser, username=username)
-#         company_name = self.kwargs["companyname"]
-# #         company = get_object_or_404(Company, company_name=company_name)
-#         return LazyJobApplication.objects.filter(profile_id=user, company_id=company)
+    @swagger_auto_schema(operation_description="Retrieve a job application", request_body=LazyJobApplicationSerializer)
+    def get(self, request):
+        """Get a specific job application or all job applications."""
+        if "lazy_application_id" in request.data:
+            # Retrieve a specific job application
+            try:
+                job_application = LazyJobApplication.objects.filter(lazy_application_id=request.data["lazy_application_id"]).select_related('company').get()
+            except LazyJobApplication.DoesNotExist:
+                # Handle case where object is not found 
+                return JsonResponse("Job application does not exist", status=status.HTTP_404_NOT_FOUND, safe=False)
+            serializer = LazyJobApplicationSerializer(job_application)
+            return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
+        else:
+            # Retrieve all job applications
+            job_applications = LazyJobApplication.objects.all()
+            serializer = LazyJobApplicationSerializer(job_applications, many=True)
+            return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
         
+    def put(self, request):
+        """Update a job application."""
+        if "lazy_application_id" in request.data:
+            # Retrieve the job application to be updated
+            try:
+                job_application = LazyJobApplication.objects.get(lazy_application_id=request.data["lazy_application_id"])
+            except LazyJobApplication.DoesNotExist:
+                return JsonResponse("The Job application you would like to update does not exist.", status=status.HTTP_404_NOT_FOUND, safe=False)
+            serializer = LazyJobApplicationSerializer(job_application, data=request.data, partial=True)
+            # serializer.is_valid(raise_exception=True)
+            # serializer.save()
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
+        else:
+            return JsonResponse("You need to provide a job application id to update a job application.", status=status.HTTP_400_BAD_REQUEST, safe=False)
 
-# class LazyJobApplicationDashboard(ListView):
-#     pass
+
+
 

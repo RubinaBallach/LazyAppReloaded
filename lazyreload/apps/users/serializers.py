@@ -123,4 +123,4 @@ class LazyUserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LazyUserProfile
-        fields = ["use_case", "cv_file", "email", "cv_text"]
+        fields = ["use_case", "cv_file", "email", "cv_text", "lazy_user_id"]
