@@ -53,45 +53,43 @@ class Landlord(models.Model):
 #         blank=False)
 
 
-
-class ApplicationLetter(models.Model):
-    # Personal Information
-    full_name = models.CharField(max_length=255)
-    date_of_birth = models.DateField()
-    current_address = models.TextField()
-    marital_status = models.CharField(max_length=50) #maybe set single as default? not sure
-
-    # Professional Information
-    current_occupation = models.CharField(max_length=255)
-    monthly_income = models.DecimalField(max_digits=10, decimal_places=2)
-
-    # Financial Stability
-    stable_income_available = models.BooleanField(default=True)
+#hoffe es ist richtig so
+class FlatApplication(models.Model):
+    applicant_name = models.CharField(max_length=60, blank=False)
+    date_of_birth = models.DateField(blank=True, null=True)
+    current_address = models.TextField(blank=True)
+    marital_status = models.CharField(max_length=60, blank=True)
+    current_occupation = models.CharField(max_length=60, blank=True)
+    monthly_income = models.IntegerField(blank=True, null=True)
+    stable_income_available = models.BooleanField(default=False)
     guarantee_available = models.BooleanField(default=False)
-    clean_schufa_report = models.BooleanField(default=True)
-
-    # References
+    clean_schufa_report = models.BooleanField(default=False)
     references_available = models.BooleanField(default=False)
-
-    # Intent to Lease
-    long_term_leasing_desire = models.BooleanField(default=True)
-
-    # Responsibility
-    quiet_and_tidy_tenant = models.BooleanField(default=True)
-    
-
-    # Pets
+    long_term_leasing_desire = models.BooleanField(default=False)
+    quiet_and_tidy_tenant = models.BooleanField(default=False)
     pets = models.BooleanField(default=False)
+    phone_number = models.CharField(max_length=20, blank=True)
+    email_address = models.EmailField(max_length=60, blank=True)
+    quantity_of_children = models.IntegerField(blank=True, null=True)
+    quantity_of_people_moving_in = models.IntegerField(blank=True, null=True)
+    additional_notes = models.TextField(blank=True)
+    generated_letter = models.TextField(blank=True)
 
-    # Contact Information
-    phone_number = models.CharField(max_length=20)
-    email_address = models.EmailField()
+    def __str__(self):
+        return f"{self.applicant_name}'s Application"
 
-    
+class FlatListing(models.Model):
+    title = models.CharField(max_length=100, blank=False)
+    city = models.CharField(max_length=50, blank=False)
+    postal_code = models.IntegerField(blank=True, null=True)
+    district = models.CharField(max_length=50, blank=False)
+    kaltmiete = models.CharField(max_length=20, blank=False)
+    space = models.CharField(max_length=20, blank=False)
+    deposit = models.CharField(max_length=20, blank=False)
+    rooms = models.IntegerField(blank=True, null=True)
+    extra_costs = models.CharField(max_length=20, blank=True)
+    heating_costs = models.CharField(max_length=100, blank=True)
+    total_cost = models.CharField(max_length=20, blank=False)
 
-    # Quantity of Children and People Moving In
-    quantity_of_children = models.PositiveIntegerField(default=0)
-    quantity_of_people_moving_in = models.PositiveIntegerField(default=1)
-
-    # Additional Notes
-    additional_notes = models.TextField(blank=True, null=True)
+    def __str__(self):
+        return f"{self.title} in {self.city}, {self.district}"
