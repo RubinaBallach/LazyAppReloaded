@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView, UpdateAPIView, ListAPIView
@@ -38,12 +38,14 @@ class CreateUserAPI(CreateAPIView):
         Token.objects.create(user=user)
 
 
+
+
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
 
     def get(self, request, *args, **kwargs):
-        return render(request, 'users/login.html')  
+        return render(request, 'core/login.html')  
 
     # Authenticates a user based on provided credentials and returns a token and user information.
     @swagger_auto_schema(operation_description="Login to application", request_body=LazyLoginSerializer)
@@ -68,6 +70,7 @@ class LoginView(APIView):
                 'user': user_serializer.data
             }
             return Response(response_data, status=status.HTTP_200_OK)
+            # return render(request, 'core/userprofile.html', {'username': user.username}) find solution
         else:
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
       
@@ -156,7 +159,7 @@ class LazyUserProfileView(generics.RetrieveUpdateAPIView):
         # Update the user profile fields with the validated data
         user_profile = self.get_object()
         user_profile.use_case = serializer.validated_data.get('use_case')
-        user_profile.cv_file = cv_file  
+        user_profile.cv_file = serializer.validated_data.get('cv_file')  
         user_profile.email = serializer.validated_data.get('email')
         user_profile.cv_text = cv_text
         user_profile.save()
@@ -166,7 +169,7 @@ class LazyUserProfileView(generics.RetrieveUpdateAPIView):
 
 class HomeView(APIView):
     def get(self, request):
-        return render (request, 'users/home.html')
+        return render (request, 'core/home.html')
 
 
     

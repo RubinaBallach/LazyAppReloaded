@@ -3,7 +3,7 @@ from openai import OpenAI
 import time
 import os
 from dotenv import load_dotenv
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 
 # All AI supported functionalities are implemented in this file
 
@@ -63,7 +63,7 @@ class CoverLetterGenerator:
     def __init__(self, api_key, 
                  job_description, cv_extract, 
                  job_type, salary_expectation, 
-                 to_highlight):
+                 to_highlight, availability):
         self.api_key = api_key
         self.client = OpenAI(api_key=self.api_key)
         self.job_description = job_description
@@ -71,6 +71,7 @@ class CoverLetterGenerator:
         self.job_type = job_type
         self.salary_expectation = salary_expectation
         self.to_highlight = to_highlight
+        self.availability = availability
 
     def relevant_job_info(self):
         """
@@ -97,14 +98,17 @@ class CoverLetterGenerator:
         # get job extract from description
         self.job_extract = self.relevant_job_info()
         # Create a prompt using CV and job description
-        prompt = f"""Generate an application letter based on the following CV and job description:
+        prompt = f"""
+                    Generate an application letter based on the following CV and job description:
                     CV:\n{self.cv_extract}\n\nJob Description:\n{self.job_extract}. 
-                    The applicant is looking for a {self.job_type}.
+                    The applicant is looking for a {self.job_type} position 
+                    and is avaiable from {self.availability}.
                     """
         if self.salary_expectation != 0:
             prompt += f"""The salary expectation is {self.salary_expectation} per year."""
         if self.to_highlight != "": 
             prompt += f"""Highlight the following: {self.to_highlight}"""
+
 
         start_time = time.time()
 
@@ -137,7 +141,7 @@ class CoverLetterGenerator:
 
 if __name__ == "__main__":
     load_dotenv()
-    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+    # OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     # generator = CVTextExtractor(OPENAI_API_KEY,
     #                              "lazyreload/media/cvs/TestCV_Lazy_App.pdf")
     # cv_text = generator.extract_cv_info()

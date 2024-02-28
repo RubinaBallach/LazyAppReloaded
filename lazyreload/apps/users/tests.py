@@ -26,10 +26,13 @@ class UserAPITestCase(APITestCase):
         payload = {
             'email': 'newuser@example.com',
             'username': 'newuser',
-            'password': 'testpass123'
+            'password': 'testpass123',
+            'first_name':'testname1',
+            'last_name':'testname',
         }
         
         response = self.client.post(self.create_user_url, payload, format='json')
+        print (response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_user_invalid_data(self):
@@ -46,13 +49,24 @@ class UserAPITestCase(APITestCase):
     def test_update_user_success(self):
         
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.test_user_token.key)
-        payload = {'email': 'updatedemail@example.com'}
-        response = self.client.patch(self.update_user_url, payload, format='json')
+        payload = {
+            'email': 'newuser@example.com',
+            'username': 'newuser',
+            'password': 'testpass123',
+            'first_name':'testname1',
+            'last_name':'testname',
+        }
+
+        
+        
+        
+        payload ['first_name'] = 'Alex'
+        response = self.client.put(self.update_user_url, payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.test_user.refresh_from_db()
-        self.assertEqual(self.test_user.email, 'updatedemail@example.com')
+        self.assertEqual(self.test_user.email, 'newuser@example.com')
         
-
+       
     def test_users_list_authenticated(self):
         
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.test_user_token.key)
