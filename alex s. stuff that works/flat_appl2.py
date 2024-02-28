@@ -113,7 +113,7 @@ Anlagen:
 
 if __name__ == "__main__":
     # Replace "YOUR_API_KEY" with your actual OpenAI API key
-    openai.api_key = ""
+    openai.api_key = "
 
     # Example usage
     user_criteria = {
