@@ -2,8 +2,9 @@ from django.db.models.query import QuerySet
 from django.shortcuts import render
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.views import APIView, ListAPIView
-from .serializers import LazyJobApplicationSerializer, CompanySerializer
+from rest_framework.views import APIView
+from rest_framework.mixins import ListModelMixin
+from .serializers import LazyJobApplicationSerializer, CompanySerializer, LazyJobApplicationDashboardSerializer
 from .models import LazyJobApplication, Company
 from apps.users.models import LazyUserProfile, LazyUser
 from drf_yasg.utils import swagger_auto_schema
@@ -110,7 +111,7 @@ class LazyJobApplicationAPIView(APIView):
                 # Handle case where object is not found 
                 return JsonResponse("Job application does not exist", status=status.HTTP_404_NOT_FOUND, safe=False)
             serializer = LazyJobApplicationSerializer(job_application)
-            return JsonResponse(serializer.data, safe=False, status=status.HTTP_200_OK)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
         else:
             return JsonResponse("You need to provide a job application id to see a job application.", status=status.HTTP_400_BAD_REQUEST, safe=False)
         
@@ -130,19 +131,125 @@ class LazyJobApplicationAPIView(APIView):
             serializer = LazyJobApplicationSerializer(job_application, data=request.data, partial=True, company_data=company_data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
-                return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False),
+                return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
             else:
                 # Handle validation errors
                 return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST, safe=False)
         else:
             return JsonResponse("You need to provide a job application id to update a job application.", status=status.HTTP_400_BAD_REQUEST, safe=False)
+        
+    @swagger_auto_schema(operation_description="Delete a job application", request_body=LazyJobApplicationSerializer)
+    def delete(self, request):
+        """Delete a job application."""
+        if "lazy_application_id" in request.data:
+            # Retrieve the job application to be deleted
+            try:
+                job_application = LazyJobApplication.objects.filter(lazy_application_id=request.data["lazy_application_id"]).select_related("company_id").get()
+            except LazyJobApplication.DoesNotExist:
+                return JsonResponse("The Job application you would like to delete does not exist.", status=status.HTTP_404_NOT_FOUND, safe=False)
+            job_application.delete()
+            return JsonResponse("Job application deleted successfully.", status=status.HTTP_200_OK, safe=False)
+        else:
+            return JsonResponse("You need to provide a job application id to delete a job application.", status=status.HTTP_400_BAD_REQUEST, safe=False)
 
 
-class JobApplicationListAPIView(ListAPIView):
-    pass
+class LazyJobApplicationDashboardAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = LazyJobApplicationDashboardSerializer
+    queryset = LazyJobApplication.objects.all()
+
+    @swagger_auto_schema(operation_description="Retrieve job applications", request_body=LazyJobApplicationDashboardSerializer)
+    def get(self, request):
+        """Get all job applications for the user."""
+        lazy_user = LazyUser.objects.get(username=request.user)
+        lazy_user_profile = LazyUserProfile.objects.get(user=lazy_user)
+        job_applications = LazyJobApplication.objects.filter(profile_id=lazy_user_profile).select_related("company_id")
+        serializer = LazyJobApplicationDashboardSerializer(job_applications, many=True)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
+    
+    @swagger_auto_schema(operation_description="Update a job application status", request_body=LazyJobApplicationDashboardSerializer)
+    def put(self, request):
+        """Update a job application."""
+        if "lazy_application_id" in request.data:
+            # Retrieve the job application to be updated
+            try:
+                job_application = LazyJobApplication.objects.filter(lazy_application_id=request.data["lazy_application_id"]).select_related("company_id").get()
+            except LazyJobApplication.DoesNotExist:
+                return JsonResponse("The Job application you would like to update does not exist.", status=status.HTTP_404_NOT_FOUND, safe=False)
+
+            # Validate and update data
+            serializer = LazyJobApplicationDashboardSerializer(job_application, data=request.data, partial=True)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
+            else:
+                # Handle validation errors
+                return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST, safe=False)
+        else:
+            return JsonResponse("You need to provide a job application id to update a job application status.", status=status.HTTP_400_BAD_REQUEST, safe=False)
+        
 
 class CompanyAPIView(APIView):
-    pass
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = CompanySerializer
+    queryset = Company.objects.all()
 
-class ComapnyListAPIView(ListAPIView):
-    pass
+    @swagger_auto_schema(operation_description="Retrieve company or companies", request_body=CompanySerializer)
+    def get(self,request):
+        if "company_id" in request.data:
+            try:
+                company = Company.objects.filter(company_id=request.data["company_id"]).get()
+                
+            except Company.DoesNotExist:
+                return JsonResponse("The company you would like to retrieve does not exist.", status=status.HTTP_404_NOT_FOUND, safe=False)
+            serializer = CompanySerializer(company)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
+        else:
+            try:
+                companies = Company.objects.all()
+            except Company.DoesNotExist:
+                return JsonResponse("No companies found.", status=status.HTTP_404_NOT_FOUND, safe=False)
+            serializer = CompanySerializer(companies, many=True)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
+
+    @swagger_auto_schema(operation_description="Change company information", request_body=CompanySerializer)
+    def put(self, request):
+        if "company_id" in request.data:
+            try:
+                company = Company.objects.filter(company_id=request.data["company_id"]).get()
+                
+            except Company.DoesNotExist:
+                return JsonResponse("The company you would like to update does not exist.", status=status.HTTP_404_NOT_FOUND, safe=False)
+            
+            serializer = CompanySerializer(company, data=request.data, partial=True)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
+            else:
+                return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST, safe=False)
+        else:
+            return JsonResponse("You need to provide a company id to update a company.", status=status.HTTP_400_BAD_REQUEST, safe=False)
+            
+
+    @swagger_auto_schema(operation_description="Create a new company", request_body=CompanySerializer)
+    def post(self, request):
+        serializer = CompanySerializer(data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return JsonResponse(serializer.data, status=status.HTTP_201_CREATED, safe=False)
+        else:
+            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST, safe=False)
+        
+    
+    @swagger_auto_schema(operation_description="Delete a company", request_body=CompanySerializer)
+    def delete(self, request):
+        """Delete a company."""
+        try:
+            company = Company.objects.get(company_id=request.data["company_id"])
+            company.delete()
+            return JsonResponse({"message": "Company deleted successfully"}, status=status.HTTP_204_NO_CONTENT, safe=False)
+        except Company.DoesNotExist:
+            return JsonResponse("The company you would like to delete does not exist.", status=status.HTTP_404_NOT_FOUND, safe=False)
+
