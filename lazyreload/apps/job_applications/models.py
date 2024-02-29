@@ -25,12 +25,12 @@ class LazyJobApplication(models.Model):
     lazy_application_id = models.AutoField(primary_key=True)
     profile_id = models.ForeignKey(
         "users.LazyUserProfile",
-        on_delete=models.CASCADE)
+        on_delete=models.CASCADE, blank=True, null=True)
     ad_link = models.URLField(max_length=250, blank=False)
     # information to be scraped from job ad
     company_id = models.ForeignKey(
         Company,
-        on_delete=models.CASCADE)
+        on_delete=models.CASCADE, blank=True, null=True)
     job_title = models.CharField(max_length=250, blank=False)
     job_ad_text = models.TextField()
     # additional manually filled information
@@ -52,7 +52,7 @@ class LazyJobApplication(models.Model):
         )
     salary_expectation = models.IntegerField(blank=True, null=True)
     to_highlight = models.TextField(
-        blank=True,
+        blank=True, null=True,
         verbose_name="Anything to highlight apart from CV Info?"
         )
     # application status 
