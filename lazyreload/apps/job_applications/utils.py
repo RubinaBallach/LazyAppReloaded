@@ -296,24 +296,26 @@ class JobAdImporter:
         cookies = self.driver.find_element(By.XPATH, '//*[@id="onetrust-accept-btn-handler"]')
         cookies.click()
         time.sleep(2)
+        data = {} 
+        data["job_title"] = self.driver.find_element(By.XPATH, '//*[@id="jobShow"]/div/div/div/div[1]/h1').text.strip()
+        data["company_name"] = self.driver.find_element(By.XPATH, '//*[@id="company"]/h2').text.strip()
+        data["company_location"] = self.driver.find_element(By.XPATH, '//*[@id="jobShow"]/div/div/div/div[1]/div/div[1]/div/p').text.strip()
+        data["company_info"] = self.driver.find_element(By.XPATH, '//*[@id="company"]/div/div').text.strip()
+        try:
+            data["recruiter"] = self.driver.find_element(By.XPATH, '//*[@id="jobShow"]/div/div/div/div[4]/div/h2').text.strip()
+        except NoSuchElementException:
+            pass
+        try:
+            data["recruiter_mail"] = self.driver.find_element(By.XPATH, '//*[@id="jobShow"]/div/div/div/div[4]/div/div/a/div/p').text.strip()
+        except NoSuchElementException:
+            pass
+        try:
+            data["recruiter_phone"] = self.driver.find_element(By.XPATH, '//*[@id="jobShow"]/div/div/div/div[4]/div/div/div/p').text.strip()
+        except NoSuchElementException:
+            pass
+        data["job_description"] = self.driver.find_element(By.XPATH, '//*[@id="jobShow"]/div/div/div/div[3]/div').text.strip()
 
-        job_title = self.driver.find_element(By.XPATH, '//*[@id="jobShow"]/div/div/div/div[1]/h1')
-        company_name = self.driver.find_element(By.XPATH, '//*[@id="company"]/h2')
-        company_location = self.driver.find_element(By.XPATH, '//*[@id="jobShow"]/div/div/div/div[1]/div/div[1]/div/p')
-        company_info = self.driver.find_element(By.XPATH, '//*[@id="company"]/div/div')
-        recruiter = self.driver.find_element(By.XPATH, '//*[@id="jobShow"]/div/div/div/div[4]/div/h2')
-        recruiter_mail = self.driver.find_element(By.XPATH, '//*[@id="jobShow"]/div/div/div/div[4]/div/div/a/div/p')
-        job_description = self.driver.find_element(By.XPATH, '//*[@id="jobShow"]/div/div/div/div[3]/div')
-
-        return {
-            "job_title": job_title.text.strip(),
-            "company_name": company_name.text.strip(),
-            "company_location": company_location.text.strip(),
-            "company_info": company_info.text.strip(),
-            "recruiter": recruiter.text.strip(),
-            "recruiter_mail": recruiter_mail.text.strip(),
-            "job_description": job_description.text.replace("\n", " ").strip()
-            }
+        return data
 
     @selenium_decorator
     def get_linked_in_information(self):
@@ -344,7 +346,7 @@ class JobAdImporter:
             }
     
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
     
     # Testing
     #indeed_ad = JobAdImporter('https://de.indeed.com/jobs?q=python&l=berlin&from=searchOnHP&advn=95263882141188&vjk=2fcd8a5b9ce55739')
@@ -383,9 +385,9 @@ class JobAdImporter:
     # information = wearedev_ad.get_wearedevelopers_information()
     # print(information)
 
-    # goodjobs_ad = JobAdImporter("https://goodjobs.eu/jobs/junior-project-manager-gn-programmkonzeption-projektmanagement-pr-events-quadriga-media-berlin-gmbh?re=172445")
-    # information = goodjobs_ad.get_goodjobs_information()
-    # print(information)
+    goodjobs_ad = JobAdImporter("https://goodjobs.eu/jobs/it-inhouse-consultant-gn-logistik-alnatura?re=172445")
+    information = goodjobs_ad.get_goodjobs_information()
+    print(information)
 
     # linked_ad = JobAdImporter("https://de.linkedin.com/jobs/view/servicekraft-w-m-d-at-fitx-3830496852?utm_campaign=google_jobs_apply&utm_source=google_jobs_apply&utm_medium=organic")
     # information = linked_ad.get_linked_in_information()

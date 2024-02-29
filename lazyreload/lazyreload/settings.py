@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     "django_extensions",
     "rest_framework.authtoken",
     "drf_yasg",
-    "drf_multiple_model",
 
 
 
