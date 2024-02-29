@@ -89,3 +89,12 @@ class UserAPITestCase(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + inactive_user_token.key)
         response = self.client.post(self.login_url, {'username': 'inactiveuser', 'password': 'password123'})
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_delete_user(self):
+        
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.test_user_token.key)
+        delete_url = reverse('delete-user', kwargs={'user_id': self.test_user.user_id})
+        response = self.client.delete(delete_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        with self.assertRaises(User.DoesNotExist):
+            User.objects.get(id=self.test_user.user_id)
