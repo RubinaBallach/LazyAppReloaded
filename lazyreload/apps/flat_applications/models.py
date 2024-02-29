@@ -51,3 +51,45 @@ class Landlord(models.Model):
 #         Landlord,
 #         on_delete=models.CASCADE,
 #         blank=False)
+
+
+#hoffe es ist richtig so
+class FlatApplication(models.Model):
+    applicant_name = models.CharField(max_length=60, blank=False)
+    date_of_birth = models.DateField(blank=True, null=True)
+    current_address = models.TextField(blank=True)
+    marital_status = models.CharField(max_length=60, blank=True)
+    current_occupation = models.CharField(max_length=60, blank=True)
+    monthly_income = models.IntegerField(blank=True, null=True)
+    stable_income_available = models.BooleanField(default=False)
+    guarantee_available = models.BooleanField(default=False)
+    clean_schufa_report = models.BooleanField(default=False)
+    references_available = models.BooleanField(default=False)
+    long_term_leasing_desire = models.BooleanField(default=False)
+    quiet_and_tidy_tenant = models.BooleanField(default=False)
+    pets = models.BooleanField(default=False)
+    phone_number = models.CharField(max_length=20, blank=True)
+    email_address = models.EmailField(max_length=60, blank=True)
+    quantity_of_children = models.IntegerField(blank=True, null=True)
+    quantity_of_people_moving_in = models.IntegerField(blank=True, null=True)
+    additional_notes = models.TextField(blank=True)
+    generated_letter = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.applicant_name}'s Application"
+
+class FlatListing(models.Model):
+    title = models.CharField(max_length=100, blank=False)
+    city = models.CharField(max_length=50, blank=False)
+    postal_code = models.IntegerField(blank=True, null=True)
+    district = models.CharField(max_length=50, blank=False)
+    kaltmiete = models.CharField(max_length=20, blank=False)
+    space = models.CharField(max_length=20, blank=False)
+    deposit = models.CharField(max_length=20, blank=False)
+    rooms = models.IntegerField(blank=True, null=True)
+    extra_costs = models.CharField(max_length=20, blank=True)
+    heating_costs = models.CharField(max_length=100, blank=True)
+    total_cost = models.CharField(max_length=20, blank=False)
+
+    def __str__(self):
+        return f"{self.title} in {self.city}, {self.district}"

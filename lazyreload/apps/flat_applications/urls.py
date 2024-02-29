@@ -1,7 +1,10 @@
-from django.urls import path#
-#from .views import 
+# project/urls.py
 
-app_name = 'flat_applications'
-#urlpatterns = [
-#    #path('api/create-flat-application/', LazyJobApplicationAPIView.as_view(), name="create-flat-application"),
-#]
+from django.contrib import admin
+from django.urls import include, path
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('lazyreload/', include('lazyreload.urls')),  # Replace with the correct app name
+    # Add more app URLs as needed
+]
