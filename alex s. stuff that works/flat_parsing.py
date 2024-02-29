@@ -101,6 +101,17 @@ class FlatAdImporter:
             total_cost_value = total_cost_element.text.strip()
             print("Total cost:", total_cost_value)
 
+        #Extracting the data of the landlord
+        landlord_company_element = soup.find('p', class_='offerer').get_text(strip=True)     
+        person_in_charge_element = soup.find('p', class_='is-bold').get_text(strip=True)
+        company_address_element =  soup.find('p', {'data-cy': 'offerer-address'}).get_text(strip=True)
+
+        print("Landlord:", landlord_company_element)
+        print("Person in charge:", person_in_charge_element)
+        print("Company address:", company_address_element)
+
+
+
         return {
             "Job title": title,
             "City": city,
@@ -112,14 +123,19 @@ class FlatAdImporter:
             "Rooms": rooms,
             "Extra costs": extra_costs_value,
             "Heating costs": heating_costs_value,
-            "Total cost": total_cost_value
+            "Total cost": total_cost_value,
+            "Landlord (Company)": landlord_company_element,
+            "Person in charge": person_in_charge_element,
+            "Company address": company_address_element
         }
     # available_element = "" # could not fix the availability of the flat
     
 
 """
 #testing 
-immowelt_url = "https://www.immowelt.de/expose/2dxcn5j"
+#immowelt_url = "https://www.immowelt.de/expose/2dxcn5j"
+#immowelt_url = "https://www.immowelt.de/expose/2dvct5l" #privater anbieter
+immowelt_url = "https://www.immowelt.de/expose/2d4j55l"
 flat_importer = FlatAdImporter(immowelt_url)
 flat_importer.parse_immowelt()
 """
