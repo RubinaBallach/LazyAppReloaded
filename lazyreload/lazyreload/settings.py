@@ -49,6 +49,9 @@ INSTALLED_APPS = [
     # third party apps
     "rest_framework",
     "django_extensions",
+    "rest_framework.authtoken",
+    "drf_yasg",
+
 
     # project apps
     "apps.core",
