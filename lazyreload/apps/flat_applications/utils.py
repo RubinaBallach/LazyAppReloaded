@@ -1,5 +1,118 @@
 import openai
 import time
+from bs4 import BeautifulSoup
+from selenium import webdriver
+import re
+import requests
+
+
+class FlatAdImporter:
+    def __init__(self, url):
+        self.url = url
+        self.headers = {
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+        }
+
+    def retrieve_information(self):
+        """switchboard to select the correct method for information retrieval based on the URL"""
+        if "immowelt" in self.url:
+            return self.get_immowelt_information()
+        else:
+            raise ValueError(f"Unsupported URL: {self.url}, please enter information manually.")
+        
+    def soup_decorator(func):
+        """
+        Decorator to manage a BeautifulSoup object for data scraping.
+
+        Args:
+            func: The function to be decorated.
+
+        Returns:
+            A wrapper function that handles BeautifulSoup setup and teardown.
+        """
+        def wrapper(self, *args, **kwargs):
+            website = requests.get(self.url, headers=self.headers)
+            try:
+                self.soup = BeautifulSoup(website.text, "html.parser")
+                result = func(self, *args, **kwargs) # call the decorated function
+                return result
+            except Exception as e:
+                print(f"Error during information retrieval: {e}")
+        return wrapper
+
+    @soup_decorator
+    def get_immowelt_information(self):
+        """Retrieve information from an Immowelt listing."""
+        data = {}
+
+        #Extracting the title of the flat description
+        title_element = self.soup.find("h1", class_="ng-star-inserted")
+        data["title"] = title_element.text.strip() if title_element else None
+
+        # Extracting City, Postal Code and District
+        address_element = self.soup.find("span", {"data-cy": "address-city"})
+        if address_element:
+            address_text = address_element.text.strip()
+            address_match = re.match(r"(\d{5})\s*([^\(]+)\s*\(([^)]+)\)", address_text)
+            if address_match:
+                data["postal_code"] = address_match.group(1)
+                data["city"] = address_match.group(2).strip()
+                data["district"] = address_match.group(3).strip()
+
+        # Extracting the cost without extra costs and heating costs
+        kaltmiete_element = self.soup.find("strong", class_="ng-star-inserted")
+        data["kaltmiete"] = (kaltmiete_element.text.strip()
+                             if kaltmiete_element else "n/a")
+
+
+        # Extracting the space of the flat
+        space_element = self.soup.find("span", class_="has-font-300")  # fläche
+        data["apartment_size"] = space_element.text.strip() if space_element else "n/a"
+
+        # Extracting the deposit of the flat
+        deposit_element = self.soup.find("p", class_="card-content")
+        deposit_value = deposit_element.text.strip() if deposit_element else None
+        data["deposit"] = f"{deposit_value} €" if deposit_value else "n/a"
+
+        # Extracting the no of rooms of the flat
+        rooms_element = self.soup.find("span", class_="has-font-300")
+        for _ in range(7):
+            rooms_element = rooms_element.next_element
+        data["rooms"] = rooms_element.text.strip() if rooms_element else "n/a"
+
+        # Extracting the extra costs
+        extra_costs_element = self.soup.find(
+            "sd-cell-col", class_="cell__col is-pulled-right"
+        )
+        for _ in range(13):
+            extra_costs_element = extra_costs_element.next_element
+        data["extra_costs_value"] = extra_costs_element.text.strip() if extra_costs_element else "n/a"
+
+        # Extracting the heating costs
+        heating_costs_element = self.soup.find(
+            "sd-cell-col", class_="cell__col is-pulled-right"
+        )
+        for _ in range(18):
+            heating_costs_element = heating_costs_element.next_element
+        data["heating_costs"] = heating_costs_element.text.strip() if heating_costs_element else "n/a"
+
+        # Extracting the total cost
+        total_cost_element = self.soup.find(
+            "sd-cell-col", class_="cell__col is-pulled-right")
+        for _ in range(35):
+            total_cost_element = total_cost_element.next_element
+        data["total_cost"] = total_cost_element.text.strip() if total_cost_element else "n/a"
+
+        return data
+    # available_element = "" # could not fix the availability of the flat
+    
+
+"""
+#testing 
+immowelt_url = "https://www.immowelt.de/expose/2dxcn5j"
+flat_importer = FlatAdImporter(immowelt_url)
+flat_importer.parse_immowelt()
+"""
 
 class FlatApplicationLetterGenerator:
     def __init__(self, listing_info, full_name, date_of_birth, current_address, marital_status, current_occupation,
