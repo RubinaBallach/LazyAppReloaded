@@ -2,11 +2,28 @@ from rest_framework import serializers
 from .models import LazyJobApplication, Company
 from apps.users.models import LazyUserProfile
 
-
+JOB_TYPE_CHOICES = [
+        ("full", "Full Time"),
+        ("part", "Part Time"),
+        ("intern", "Internship"),
+        ("free", "Freelance"),
+        ("temp", "Temporary"),
+    ]
+APPLICANT_STATUS_CHOICES = [
+        ("apply", "Need to apply"),
+        ("applied", "Applied"),
+        ("interview", "Interview"),
+        ("rejected", "Rejected"),
+        ("accepted", "Accepted"),
+        ("offer", "Offer"),
+        ("hired", "Hired"),
+        ("withdrawn", "Withdrawn"),
+    ]
 class CompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = Company
         fields = (
+            "company_id",
             "company_name",
             "company_website",
             "company_location",
@@ -20,15 +37,16 @@ class LazyJobApplicationSerializer(serializers.Serializer):
     ad_link = serializers.URLField(max_length=200)
     salary_expectation = serializers.IntegerField(default=0)
     to_highlight = serializers.CharField(style={'base_template': 'textarea.html'}, required=False, default="")
-    job_type = serializers.CharField(max_length=60, default="full")
+    job_type = serializers.ChoiceField(choices=JOB_TYPE_CHOICES, default="full")
     job_title = serializers.CharField(max_length=60, required=False)
     job_ad_text = serializers.CharField(style={'base_template': 'textarea.html'}, required=False)
     recruiter_name = serializers.CharField(max_length=250, required=False)
     recruiter_mail = serializers.EmailField(max_length=60, required=False)
     recruiter_phone = serializers.CharField(max_length=60, required=False)
     cover_letter = serializers.CharField(style={'base_template': 'textarea.html'}, required=False)
+    application_costs = serializers.FloatField(read_only=True)
 
-    company_id = serializers.PrimaryKeyRelatedField(required=False, queryset=Company.objects.all())
+    #company_id = serializers.PrimaryKeyRelatedField(required=False, queryset=Company.objects.all())
     company= CompanySerializer(source="company_id", read_only=True)
 
 
@@ -95,3 +113,41 @@ class LazyJobApplicationSerializer(serializers.Serializer):
         return instance
     
 
+class LazyJobApplicationDashboardSerializer(serializers.Serializer):
+    """Serializer class used to display and updated the status of a job application."""
+    lazy_application_id = serializers.IntegerField(read_only=True)
+    profile_id = serializers.PrimaryKeyRelatedField(read_only=True)
+    ad_link = serializers.URLField(max_length=200, read_only=True)
+    salary_expectation = serializers.IntegerField(default=0)
+    job_type = serializers.ChoiceField(choices=JOB_TYPE_CHOICES, read_only=True)
+    company_id = serializers.PrimaryKeyRelatedField(required=False, queryset=Company.objects.all())
+    company_name= serializers.CharField(source="company_id.company_name", read_only=True)
+    job_title = serializers.CharField(max_length=60, read_only=True)
+    recruiter_name = serializers.CharField(max_length=250, required=False)
+    recruiter_mail = serializers.EmailField(max_length=60, required=False)
+    recruiter_phone = serializers.CharField(max_length=60, required=False)
+    status = serializers.ChoiceField(choices=APPLICANT_STATUS_CHOICES, default="apply")
+    application_send_date = serializers.DateTimeField(required=False)
+    interview_date = serializers.DateTimeField(required=False)
+    salary_offer = serializers.IntegerField(required=False)
+    start_date = serializers.DateTimeField(required=False)
+    notes = serializers.CharField(style={'base_template': 'textarea.html'}, required=False)
+    application_costs = serializers.FloatField(read_only=True)
+
+    class Meta:
+        model = LazyJobApplication
+        fields = ("__all__")
+
+    def update(self, instance, validated_data):
+        instance.salary_expectation = validated_data.get("salary_expectation", instance.salary_expectation)
+        instance.recruiter_name = validated_data.get("recruiter_name", instance.recruiter_name)
+        instance.recruiter_mail = validated_data.get("recruiter_mail", instance.recruiter_mail)
+        instance.recruiter_phone = validated_data.get("recruiter_phone", instance.recruiter_phone)
+        instance.status = validated_data.get("status", instance.status)
+        instance.application_send_date = validated_data.get("application_send_date", instance.application_send_date)
+        instance.interview_date = validated_data.get("interview_date", instance.interview_date)
+        instance.salary_offer = validated_data.get("salary_offer", instance.salary_offer)
+        instance.start_date = validated_data.get("start_date", instance.start_date)
+        instance.notes = validated_data.get("notes", instance.notes)
+        instance.save()
+        return instance

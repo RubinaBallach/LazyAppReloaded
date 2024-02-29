@@ -70,9 +70,8 @@ class LazyJobApplication(models.Model):
 
     job_type = models.CharField(max_length=50, choices=JOB_TYPE_CHOICES)
     cover_letter = models.TextField(blank=True)
-    status = models.CharField(max_length=50, choices=APPLICANT_STATUS_CHOICES, default="pending")
+    status = models.CharField(max_length=50, choices=APPLICANT_STATUS_CHOICES, default="apply")
     application_send_date = models.DateField(blank=True, null=True)
-    status = models.CharField(max_length=20, choices=APPLICANT_STATUS_CHOICES, default="apply")
     interview_date = models.DateField(blank=True, null=True)
     salary_offer = models.IntegerField(blank=True, null=True)
     start_date = models.DateField(blank=True, null=True)
