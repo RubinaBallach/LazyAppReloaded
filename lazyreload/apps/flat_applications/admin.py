@@ -20,8 +20,7 @@ class LazyRenterAdmin(admin.ModelAdmin):
 class LandlordAdmin(admin.ModelAdmin):
     fields = [
         'landlord_id', 'landlord_name',
-        'landlord_mail', 'landlord_phone',
-        'landlord_type', 'landlord_notes']
+        'landlord_contact', 'landlord_address',]
     readonly_fields = ['landlord_id']
 
 @admin.register(LazyFlatApplication)
