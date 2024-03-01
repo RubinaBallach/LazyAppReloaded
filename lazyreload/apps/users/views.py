@@ -111,8 +111,7 @@ class UserListView(ListAPIView):
     queryset = LazyUser.objects.all()
     serializer_class = LazyUserSerializer
     permission_classes = [IsAdminUser] #need to be active for permission access control test, otherwise the test fails (403 expected but 200 gets returned resulting in F)
-    permission_classes = [IsAuthenticated] #needed so auth users can have access to test (almost same as with admin, 200 expected output is 403)
-
+    
 class LazyUserProfileView(generics.RetrieveUpdateAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]

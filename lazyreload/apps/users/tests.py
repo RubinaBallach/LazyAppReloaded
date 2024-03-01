@@ -28,6 +28,9 @@ class UserAPITestCase(APITestCase):
         self.test_user = User.objects.create_user('testuser', 'test@example.com', 'testpassword') #hardcoded stuff
         self.test_user_token = Token.objects.create(user=self.test_user)
         
+        self.test_admin_user = User.objects.create_superuser('adminuser', 'admin@example.com', 'adminpassword')
+        self.test_admin_token = Token.objects.create(user=self.test_admin_user)
+        
         self.create_user_url = reverse('create-user')
         self.login_url = reverse('login')
         self.list_users_url = reverse('list-users')      
@@ -84,7 +87,7 @@ class UserAPITestCase(APITestCase):
        
     def test_users_list_authenticated(self): #assure that auth is admin, needs rewrite as admin_user, otherwise permission and access control test fails
         
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.test_user_token.key)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.test_admin_token.key)
         response = self.client.get(self.list_users_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
