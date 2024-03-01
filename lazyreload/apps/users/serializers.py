@@ -83,8 +83,9 @@ class LazyUserSerializer(serializers.ModelSerializer):
 
 
 class LazyLoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    password = serializers.CharField(write_only=True)
+
+    username = serializers.CharField(required= False)
+    password = serializers.CharField(write_only=True, required=False)
 
 
 class LazyUpdateUserSerializer(serializers.ModelSerializer):

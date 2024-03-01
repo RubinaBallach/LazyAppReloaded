@@ -1,19 +1,21 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 from rest_framework import generics, status
-from rest_framework.views import APIView
+from rest_framework.views import APIView, View
 from rest_framework.generics import CreateAPIView, UpdateAPIView, ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.authtoken.models import Token
-#from rest_framework.decorators import api_view
 from rest_framework.response import Response
-#from rest_framework import status
+from django.http import JsonResponse
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import parsers
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.renderers import JSONRenderer
+from .forms import RegistrationForm
+from django.shortcuts import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate, login
-from drf_yasg.utils import swagger_auto_schema
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from apps.core.utils import CVTextExtractor
 from dotenv import load_dotenv
 import os
@@ -26,16 +28,36 @@ from .models import LazyUser, LazyUserProfile
 from .serializers import LazyUserSerializer, LazyLoginSerializer, LazyUpdateUserSerializer , LazyUserProfileSerializer  # UpdateUserSerializer
 
 
-class CreateUserAPI(CreateAPIView):
-    queryset = LazyUser.objects.all()
-    serializer_class = LazyUserSerializer
+@method_decorator(csrf_exempt, name='dispatch')
+class CreateUserAPI(APIView):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'core/register.html')
 
-    #Creates a new user and generates an authentication token.
+    def post(self, request, *args, **kwargs):
+        form = RegistrationForm(request.data)
+
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+
+            if request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+                serializer = LazyUserSerializer(user)
+                return JsonResponse(serializer.data, status=201)
+            else:
+                return HttpResponseRedirect(reverse('userprofile'))
+
+        # Form is not valid
+        errors = form.errors
+        if request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+           
+            return JsonResponse({'errors': errors}, status=400)
+        else:
+            return render(request, 'core/register.html', {'errors': errors})
+        
+    
     def perform_create(self, serializer):
         user = serializer.save()
         Token.objects.create(user=user)
-
-
 
 
 class LoginView(APIView):
@@ -55,19 +77,27 @@ class LoginView(APIView):
         if username:
             user = authenticate(request, username=username, password=password)
 
-        #if the user object is valid, the user is logged and the token is created or retrieved
+        #if the user is valid, the user is logged and the token is created or retrieved
         if user:
-            login(request, user)  # Log the user in
+            login(request, user)  
             token, created = Token.objects.get_or_create(user=user)
             user_serializer = LazyUserSerializer(user)
             response_data = {
                 'token': token.key,
                 'user': user_serializer.data
             }
-            return render(request, 'core/userprofile.html', {'username': user.username})
+
+
+            if request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+                return Response({'detail': 'Successfuly logged in'}, status=status.HTTP_200_OK)
+            else:
+                return render(request, 'core/userprofile.html', {'username': user.username})
         else:
-            return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-      
+            if request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+                return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            else:
+                return render(request, 'core/userprofile.html', {'error': 'Invalid credentials'})
+                
 
 class LazyUpdateUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -125,6 +155,9 @@ class LazyUserProfileView(generics.RetrieveUpdateAPIView):
         user_profile, created = LazyUserProfile.objects.get_or_create(user=self.request.user)
         return user_profile
 
+    def get(self, request, *args, **kwargs):
+        return render(request, 'core/userprofile.html')
+
     def post(self, request, *args, **kwargs):
         # If a user profile already exists, update it, otherwise create a new one
         user_profile = self.get_object()
@@ -157,9 +190,19 @@ class LazyUserProfileView(generics.RetrieveUpdateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class HomeView(APIView):
+class HomeView(View):
     def get(self, request):
         return render (request, 'core/home.html')
+    
+
+class AboutUsView(View):
+    def get(self, request):
+        return render (request, 'core/aboutus.html')
+    
+class ContactView(View):
+    def get(self, request):
+        return render (request, 'core/contact.html')
+
 
 
     

@@ -9,8 +9,8 @@
     <title>LazyApp</title>
 </head>
 <body>
-   <div class="container-fluid main">
-
+   
+    <div class="container-fluid main">
       <nav class="navbar navbar-default">
         <div class="container-fluid">
           <div class="navbar-header">
@@ -23,8 +23,8 @@
           <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
                <li><a href="#">Homepage</a></li>
-              <li><a href="#">About</a></li>
-              <li><a href="#">Contact Us</a></li>
+              <li><a href="{% url 'aboutus' %}">About Us</a></li>
+              <li><a href="{% url 'contact' %}">Contact Us</a></li>
               <li><a href="#">Documentation</a></li>
             </ul>
           </div>
@@ -32,8 +32,8 @@
       </nav>
     
       <div id="homepage_pic">
-         <img src="{% static 'core/images/homepage.png' %}" alt="Your Image Alt Text">
-     </div>
+         <img src="{% static 'core/images/homepage.png' %}" alt="Your Image">
+      </div>
       
       <div class="covertext">
         <div class="col-lg-10" style="float:none; margin:0 auto;">
@@ -44,7 +44,6 @@
           <a href="{% url 'login'%}"><button type="button" class="btn btn-lg explorebtn">Login</button></a>
         </div>
       </div>
-      
     </div>
 
 </body>
