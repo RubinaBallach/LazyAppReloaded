@@ -3,7 +3,7 @@ from rest_framework import status
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token 
-#from faker import Faker
+from faker import Faker
 
 
 
@@ -12,12 +12,26 @@ User = get_user_model()
 class UserAPITestCase(APITestCase):
     
     def setUp(self):
-        #create user for auth test
-        self.test_user = User.objects.create_user('testuser', 'test@example.com', 'testpassword')
+        self.fake = Faker()
+        
+                
+        #create user for auth test and faker shenaningans
+        self.test_user = User.objects.create_user(
+            username=self.fake.user_name(),
+            email=self.fake.email(),
+            password='testpassword'
+        )
+        
+        self.test_user.is_staff = True #so you don't get 403'd on 2 tests (delete and update)
+        self.test_user.save()
+        
+        self.test_user = User.objects.create_user('testuser', 'test@example.com', 'testpassword') #hardcoded stuff
         self.test_user_token = Token.objects.create(user=self.test_user)
+        
         self.create_user_url = reverse('create-user')
         self.login_url = reverse('login')
-        self.list_users_url = reverse('list-users')
+        self.list_users_url = reverse('list-users')      
+        
         self.user_profile_url = reverse('user-profile', kwargs={'user_id': self.test_user.user_id})
         self.update_user_url = reverse('update-user', kwargs={'user_id': self.test_user.user_id})
 
