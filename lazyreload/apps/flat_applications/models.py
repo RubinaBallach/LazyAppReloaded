@@ -1,19 +1,11 @@
 from django.db import models
 
-# Create your models here.
-LANDLORD_TYPE_CHOICES = [
-    ("private", "Private"),
-    ("company", "Company"),
-    ("agent", "Agent"),
-    ("other", "Other")
-]
 
 class Landlord(models.Model):
     landlord_id = models.AutoField(primary_key=True)
     landlord_name = models.CharField(max_length=60, blank=True)
-    landlord_mail = models.EmailField(max_length=60, blank=True)
-    landlord_phone = models.CharField(max_length=60, blank=True)
-    landlord_type = models.CharField(max_length=50, choices=LANDLORD_TYPE_CHOICES, default="other", blank=False)
+    landlord_contact = models.EmailField(max_length=60, blank=True)
+    landlord_address = models.CharField(max_length=60, blank=True)
     landlord_notes = models.TextField(blank=True)
 
 class LazyRenter(models.Model):

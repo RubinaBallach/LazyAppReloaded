@@ -1,7 +1,6 @@
 import openai
 import time
 from bs4 import BeautifulSoup
-from selenium import webdriver
 import re
 import requests
 
@@ -103,16 +102,12 @@ class FlatAdImporter:
             total_cost_element = total_cost_element.next_element
         data["total_cost"] = total_cost_element.text.strip() if total_cost_element else "n/a"
 
-        return data
-    # available_element = "" # could not fix the availability of the flat
-    
+        data["landlord_name"] = self.soup.find('p', class_='offerer').get_text(strip=True)     
+        data["landlord_contact"] = self.soup.find('p', class_='is-bold').get_text(strip=True)
+        data["landlord_address"] =  self.soup.find('p', {'data-cy': 'offerer-address'}).get_text(strip=True)
 
-"""
-#testing 
-immowelt_url = "https://www.immowelt.de/expose/2dxcn5j"
-flat_importer = FlatAdImporter(immowelt_url)
-flat_importer.parse_immowelt()
-"""
+        return data
+
 
 class FlatApplicationLetterGenerator:
     def __init__(self, listing_info, full_name, date_of_birth, current_address, marital_status, current_occupation,
@@ -202,9 +197,9 @@ class FlatApplicationLetterGenerator:
 
         Anlagen:
         - Gehaltsabrechnungen
-        - SCHUFA-Auskunft
-        - {f'Referenzen früherer Vermieter' if self.references_available else ''}
-        - {f'Nachweis über Garantie' if self.guarantee_available else ''}
+        {f'- SCHUFA-Auskunft' if self.clean_schufa_report else ''}
+        {f'- Mietschuldenfreiheitsbescheinigung' if self.references_available else ''}
+        {f'- Nachweis über Bürgschaft' if self.guarantee_available else ''}
         """
 
     def generate_flat_application_letter(self):
