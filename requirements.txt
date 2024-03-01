@@ -31,4 +31,4 @@ drf-yasg==1.21.7
 openai==1.12.0
 pypdf==4.0.2
 Faker==23.3.0
-
+python-dotenv==1.0.1
