@@ -6,6 +6,7 @@ class Landlord(models.Model):
     landlord_name = models.CharField(max_length=60, blank=True)
     landlord_contact = models.EmailField(max_length=60, blank=True)
     landlord_address = models.CharField(max_length=60, blank=True)
+    landlord_phone = models.CharField(max_length=60, blank=True)
     landlord_notes = models.TextField(blank=True)
 
 class LazyRenter(models.Model):
@@ -13,8 +14,8 @@ class LazyRenter(models.Model):
     profile_id = models.ForeignKey(
         "users.LazyUserProfile",
         on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=60, blank=False)
-    last_name = models.CharField(max_length=60, blank=False)
+    first_name = models.CharField(max_length=60, blank=True)
+    last_name = models.CharField(max_length=60, blank=True)
     date_of_birth = models.DateField(blank=True, null=True)
     renter_mail = models.EmailField(max_length=60, blank=True)
     renter_phone = models.CharField(max_length=60, blank=True)
