@@ -46,11 +46,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     # third party apps
+    # third party apps
     "rest_framework",
     "django_extensions",
     "rest_framework.authtoken",
     "drf_yasg",
-
 
 
     # project apps
@@ -121,6 +121,19 @@ DATABASES = {
     }
 }
 
+if os.environ.get("GITHUB_WORKFLOW"):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'lazyapp',
+            'USER': 'postgres',
+            'PASSWORD': 'postgres',
+            'HOST': '127.0.0.1',
+            'PORT': '5432',
+        }
+    }
+
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -156,11 +169,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = os.path.join(BASE_DIR,"static/")
 
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "lazyreload", "static"),
+    os.path.join(BASE_DIR, "apps/core/static"),
 ]
 
 # Default primary key field type
@@ -174,11 +187,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':[
 
         'rest_framework.authentication.TokenAuthentication',
-        #'rest_framework.authentication.SessionAuthentication',
-    ],
-}
-
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=20)
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
+    ]
 }
 
