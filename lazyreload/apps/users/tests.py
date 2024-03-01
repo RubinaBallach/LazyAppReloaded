@@ -82,7 +82,7 @@ class UserAPITestCase(APITestCase):
         self.assertEqual(self.test_user.email, 'newuser@example.com')
         
        
-    def test_users_list_authenticated(self):
+    def test_users_list_authenticated(self): #assure that auth is admin, needs rewrite as admin_user, otherwise permission and access control test fails
         
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.test_user_token.key)
         response = self.client.get(self.list_users_url)
