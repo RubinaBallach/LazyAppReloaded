@@ -112,3 +112,18 @@ class UserAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         with self.assertRaises(User.DoesNotExist):
             User.objects.get(id=self.test_user.user_id)
+    
+    def test_permission_and_access_control(self): #fails, need to check user-list('list-users' in this case). Permission issue, because a reg user is not supposed to access the list
+        regular_user = User.objects.create_user(username=self.fake.user_name(), email=self.fake.email(), password='password123')
+        regular_user_token = Token.objects.create(user=regular_user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + regular_user_token.key)
+        response = self.client.get(reverse('list-users'))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, msg="Regular user should not access user list")
+        
+    def test_login_with_wrong_password(self):
+        user = User.objects.create(username=self.fake.user_name(), email=self.fake.email(), password='correctpassword')
+        payload = {'username': user.username, 'password': 'wrongpassword'}
+        response = self.client.post(reverse('login'), payload, format='json')
+        self.assertIn('detail', response.data)
+        self.assertEqual(response.data['detail'], 'Invalid credentials')
+                                                
