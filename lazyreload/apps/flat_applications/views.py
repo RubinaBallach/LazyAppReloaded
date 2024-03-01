@@ -1,14 +1,44 @@
-
-
-from django.shortcuts import render, redirect
+import os
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from .models import FlatApplication, FlatListing
-from .serializers import FlatApplicationSerializer, FlatListingSerializer
-from .flat_application_letter_generator import FlatApplicationLetter  # Assuming you have this module
+from drf_yasg.utils import swagger_auto_schema
+from dotenv import load_dotenv
+from django.http import JsonResponse
+from .models import LazyFlatApplication, LazyRenter, Landlord
+from .serializers import LandlordSerializer, LazyRenterSerializer, LazyFlatApplicationSerializer
+from .utils import FlatApplicationGenerator
 
 # Create views here
+
+class LazyFlatApplicationView(APIView)
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = LazyFlatApplicationSerializer
+    queryset = LazyFlatApplication.objects.all()
+
+    @swagger_auto_schema(operation_description="Retirieve flat application",
+                         request_body=LazyFlatApplicationSerializer)
+    def get_object(self):
+        flat_application, created = LazyFlatApplication.objects.get_or_create(
+            flat_application_id=self.request.flat_application_id)
+        return flat_application
+    
+    @swagger_auto_schema(operation_description="Create flat application",
+                         request_body=LazyFlatApplicationSerializer)
+    def post(self, request):
+        #instantiate scrape flat information class
+
+
+
+
+
+
+
+
+
 @api_view(['POST'])
 def create_flat_application(request):
     serializer = FlatApplicationSerializer(data=request.data)

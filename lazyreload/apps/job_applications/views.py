@@ -1,19 +1,16 @@
-from django.db.models.query import QuerySet
+import os
 from django.shortcuts import render
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.views import APIView
-from rest_framework.mixins import ListModelMixin
+from rest_framework import status
+from drf_yasg.utils import swagger_auto_schema
+from dotenv import load_dotenv
+from django.http import JsonResponse
 from .serializers import LazyJobApplicationSerializer, CompanySerializer, LazyJobApplicationDashboardSerializer
 from .models import LazyJobApplication, Company
-from apps.users.models import LazyUserProfile, LazyUser
-from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status
-from apps.core.utils import CoverLetterGenerator
 from .utils import JobAdImporter
-from dotenv import load_dotenv
-import os
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from apps.users.models import LazyUserProfile, LazyUser
 
 
 
@@ -79,25 +76,25 @@ class LazyJobApplicationAPIView(APIView):
         
         # Generate a cover letter based on the job ad and the user's CV:
         try:
-            # load_dotenv()
-            # OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-            # cover_letter = CoverLetterGenerator(
-            #     api_key=OPENAI_API_KEY,
-            #     job_description=str(info),
-            #     cv_extract=lazy_user_profile.cv_text,
-            #     job_type=data["job_type"],
-            #     salary_expectation=data["salary_expectation"],
-            #     to_highlight=data["to_highlight"],
-            #     availability = lazy_user_profile.availability,
-            # ).generate_cover_letter()
-            # data["cover_letter"] = cover_letter
+            load_dotenv()
+            OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+            cover_letter = CoverLetterGenerator(
+                api_key=OPENAI_API_KEY,
+                job_description=str(info),
+                cv_extract=lazy_user_profile.cv_text,
+                job_type=data["job_type"],
+                salary_expectation=data["salary_expectation"],
+                to_highlight=data["to_highlight"],
+                availability = lazy_user_profile.availability,
+            ).generate_cover_letter()
+            data["cover_letter"] = cover_letter
             serializer.save(**data) # save all data at once
         except Exception as e:  # Catch potential errors during cover letter generation
             print(f"Error generating cover letter: {e}")
             return JsonResponse(
                 {"error": "Failed to generate cover letter"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                safe=False)    
+                safe=False)
         return JsonResponse(serializer.data, status=status.HTTP_201_CREATED, safe=False)
 
     @swagger_auto_schema(operation_description="Retrieve a job application", request_body=LazyJobApplicationSerializer)
