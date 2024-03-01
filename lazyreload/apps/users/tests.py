@@ -12,6 +12,7 @@ User = get_user_model()
 class UserAPITestCase(APITestCase):
     
     def setUp(self):
+      
         self.fake = Faker()
         
                 
@@ -84,9 +85,9 @@ class UserAPITestCase(APITestCase):
         self.test_user.refresh_from_db()
         self.assertEqual(self.test_user.email, 'newuser@example.com')
         
-       
     def test_users_list_authenticated(self): #assure that auth is admin, needs rewrite as admin_user, otherwise permission and access control test fails
         
+
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.test_admin_token.key)
         response = self.client.get(self.list_users_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -98,7 +99,6 @@ class UserAPITestCase(APITestCase):
         response = self.client.get(self.user_profile_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
-
     def test_login_inactive_user(self):
         # create inactive user
         inactive_user = User.objects.create_user('inactiveuser', 'inactive@example.com', 'password123', is_active=False)
@@ -110,7 +110,7 @@ class UserAPITestCase(APITestCase):
     def test_delete_user(self):
         
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.test_user_token.key)
-        delete_url = reverse('delete-user', kwargs={'user_id': self.test_user.user_id})
+        delete_url = reverse('users:delete-user', kwargs={'user_id': self.test_user.user_id})
         response = self.client.delete(delete_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         with self.assertRaises(User.DoesNotExist):

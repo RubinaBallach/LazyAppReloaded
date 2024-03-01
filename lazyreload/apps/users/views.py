@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView, UpdateAPIView, ListAPIView
@@ -32,17 +32,23 @@ class CreateUserAPI(CreateAPIView):
     serializer_class = LazyUserSerializer
 
     #Creates a new user and generates an authentication token.
+    @swagger_auto_schema(operation_description="Create a new user", request_body=LazyUserSerializer)
     def perform_create(self, serializer):
         user = serializer.save()
         Token.objects.create(user=user)
 
 
+
+
 class LoginView(APIView):
     permission_classes = [AllowAny]
+
+
     def get(self, request, *args, **kwargs):
-        return render(request, 'users/login.html')  
+        return render(request, 'core/login.html')  
 
     # Authenticates a user based on provided credentials and returns a token and user information.
+    @swagger_auto_schema(operation_description="Login to application", request_body=LazyLoginSerializer)
     def post(self, request, *args, **kwargs):
         serializer = LazyLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -50,11 +56,11 @@ class LoginView(APIView):
         password = serializer.validated_data.get('password')
         user = None
         
-        #if validation is true, extract username and password from validated data
+        # if validation is true, extract username and password from validated data
         if username:
             user = authenticate(request, username=username, password=password)
 
-        #if the user object is valid, the user is logged and the token is created or retrieved
+        # if the user object is valid, the user is logged and the token is created or retrieved
         if user:
             login(request, user)  # Log the user in
             token, created = Token.objects.get_or_create(user=user)
@@ -64,6 +70,7 @@ class LoginView(APIView):
                 'user': user_serializer.data
             }
             return Response(response_data, status=status.HTTP_200_OK)
+            # return render(request, 'core/userprofile.html', {'username': user.username}) find solution
         else:
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
       
@@ -72,6 +79,7 @@ class LazyUpdateUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     # Updates a user's information
+    @swagger_auto_schema(operation_description="Update a user's information", request_body=LazyUpdateUserSerializer)
     def put(self, request, user_id):
         try:
             user = LazyUser.objects.get(user_id=user_id)
@@ -93,6 +101,7 @@ class LazyDeleteUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     # Deletes a user with the specified ID
+    @swagger_auto_schema(operation_description="Delete a user")
     def delete(self, request, user_id):
         try:
             user = LazyUser.objects.get(user_id=user_id)
@@ -112,6 +121,7 @@ class UserListView(ListAPIView):
     serializer_class = LazyUserSerializer
     permission_classes = [IsAdminUser] #need to be active for permission access control test, otherwise the test fails (403 expected but 200 gets returned resulting in F)
     
+
 class LazyUserProfileView(generics.RetrieveUpdateAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -119,10 +129,12 @@ class LazyUserProfileView(generics.RetrieveUpdateAPIView):
     parser_classes = [MultiPartParser, FormParser] #parsers handle different media types in the request
     renderer_classes = [JSONRenderer]
     
+    @swagger_auto_schema(operation_description="Retrieve a user's profile", request_body=LazyUserProfileSerializer)
     def get_object(self):
         user_profile, created = LazyUserProfile.objects.get_or_create(user=self.request.user)
         return user_profile
-
+    
+    @swagger_auto_schema(operation_description="Update a user's profile", request_body=LazyUserProfileSerializer)
     def post(self, request, *args, **kwargs):
         # If a user profile already exists, update it, otherwise create a new one
         user_profile = self.get_object()
@@ -147,7 +159,7 @@ class LazyUserProfileView(generics.RetrieveUpdateAPIView):
         # Update the user profile fields with the validated data
         user_profile = self.get_object()
         user_profile.use_case = serializer.validated_data.get('use_case')
-        user_profile.cv_file = cv_file  
+        user_profile.cv_file = serializer.validated_data.get('cv_file')  
         user_profile.email = serializer.validated_data.get('email')
         user_profile.cv_text = cv_text
         user_profile.save()
@@ -155,6 +167,9 @@ class LazyUserProfileView(generics.RetrieveUpdateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+class HomeView(APIView):
+    def get(self, request):
+        return render (request, 'core/home.html')
 
 
     
