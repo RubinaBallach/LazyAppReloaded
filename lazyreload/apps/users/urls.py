@@ -1,16 +1,20 @@
 from django.urls import path
 from .views import ( CreateUserAPI, LazyUpdateUserAPIView, UserListView, 
                     LoginView, LazyUserProfileView, LazyDeleteUserAPIView,
-                    HomeView)
+                    HomeView, AboutUsView, ContactView)
 
 app_name = 'users'
 
 urlpatterns = [
-    path('api/create-user/', CreateUserAPI.as_view(), name='create-user'),
-    path('api/login/', LoginView.as_view(), name="login"),
-    path('api/users-list/', UserListView.as_view(), name='list-users'),
-    path('api/user-profile/<uuid:user_id>/', LazyUserProfileView.as_view(), name='user-profile'),
-    path('api/update-user/<uuid:user_id>/', LazyUpdateUserAPIView.as_view(), name='update-user'),
-    path('api/delete-user/<uuid:user_id>/', LazyDeleteUserAPIView.as_view(), name='delete-user'),   
-    path('home/',HomeView.as_view(), name='home')
+
+    path('register/', CreateUserAPI.as_view(), name="register"),
+    path('login/', LoginView.as_view(), name="login"),
+    path('users-list/', UserListView.as_view(), name='list-users'),
+    path('userprofile/', LazyUserProfileView.as_view(), name = 'userprofile'),
+    path('update-user/<uuid:user_id>/', LazyUpdateUserAPIView.as_view(), name='update-user'),
+    path('delete-user/<uuid:user_id>/', LazyDeleteUserAPIView.as_view(), name='delete-user'),
+    path('home/',HomeView.as_view(), name='home'),
+    path('aboutus/',AboutUsView.as_view(), name='aboutus'),
+    path('contact/',ContactView.as_view(), name='contact')
 ]
+
