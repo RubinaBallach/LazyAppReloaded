@@ -129,4 +129,14 @@ class UserAPITestCase(APITestCase):
         response = self.client.post(reverse('login'), payload, format='json')
         self.assertIn('detail', response.data)
         self.assertEqual(response.data['detail'], 'Invalid credentials')
-                                                
+        
+    #im drunkw, needs fixing
+    def test_partial_update_user_profile(self):
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user_token.key)
+        updated_email = {'email': 'newemail@example.com'}
+        response = self.client.patch(self.update_user_profile_url, updated_email, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK, "Profile should be partially updated")
+        updated_user = User.objects.get(id=self.user.id)
+        self.assertEqual(updated_user.email, 'newemail@example.com', "Email should be updated to the new value")
+
+        
