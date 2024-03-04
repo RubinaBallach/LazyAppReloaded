@@ -1,0 +1,9 @@
+-r base.txt
+# Packkages for hosting
+gunicorn==21.2.0
+# url to connect to the database.
+dj-database-url==2.1.0
+# for database
+psycopg2-binary==2.9.9
+#help for starting file
+whitenoise==6.6.0

@@ -8,7 +8,7 @@ from drf_yasg.utils import swagger_auto_schema
 from dotenv import load_dotenv
 from django.http import JsonResponse
 from .models import LazyFlatApplication, LazyRenter, Landlord
-from .serializers import LandlordSerializer, LazyRenterSerializer, LazyFlatApplicationSerializer
+from .serializers import LandlordSerializer, LazyRenterSerializer, LazyFlatApplicationSerializer, LazyFlatApplicationDashboardSerializer
 from .utils import FlatAdImporter, FlatApplicationLetterGenerator
 from apps.users.models import LazyUser, LazyUserProfile
 
@@ -229,7 +229,7 @@ class LazyFlatApplicationAPIView(APIView):
             "extra_costs": flat_info.get('extra_costs', "Extra costs not found"),
             "heating_costs": flat_info.get('heating_costs', "Heating costs not found"),
             "total_cost": flat_info.get('total_cost', "Total cost not found"),
-            "additional_notes": flat_info.get('additional_notes', ""),
+            "additional_notes": flat_info.get('additional_notes', "no additional notes found"),
         }
         flat_application_serializer = LazyFlatApplicationSerializer(flat_application, data=flat_application_data )
 
@@ -272,12 +272,96 @@ class LazyFlatApplicationAPIView(APIView):
                  safe=False
              )
 
-        # flat_application_serializer.is_valid(raise_exception=True)
-        # flat_application_serializer.save(**flat_application_data)
-        return JsonResponse({"detail": f"Flat application created successfully,{landlord_serializer.data}"},
-            status=status.HTTP_201_CREATED,
-            safe=False)
+        flat_application_serializer.is_valid(raise_exception=True)
+        flat_application_serializer.save(**flat_application_data)
+        return JsonResponse(flat_application_serializer.data,
+            status=status.HTTP_201_CREATED, safe=False)
+
+    @swagger_auto_schema(operation_description="Retrieve flat application",
+                            request_body=LazyFlatApplicationSerializer)
+    def get(self, request):
+        """Retrieve specfic flat applications or all flat applications"""
+        if "flat_application_id" in request.data:
+            try:
+                flat_application = LazyFlatApplication.objects.get(flat_application_id=request.data["flat_application_id"])
+            except LazyFlatApplication.DoesNotExist:
+                return JsonResponse({'detail': 'Flat Application not found.'}, status=status.HTTP_404_NOT_FOUND)
+            serializer = LazyFlatApplicationSerializer(flat_application)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        else:
+            flat_applications = LazyFlatApplication.objects.all()
+            serializer = LazyFlatApplicationSerializer(flat_applications, many=True)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+     
+    @swagger_auto_schema(operation_description="Update flat application",
+                            request_body=LazyFlatApplicationSerializer)
+    def put(self, request):
+        """Update flat application"""
+        if "flat_application_id" in request.data:
+            try:
+                flat_application = LazyFlatApplication.objects.get(flat_application_id=request.data["flat_application_id"]).select_related('renter_id', 'landlord_id')
+            except LazyFlatApplication.DoesNotExist:
+                return JsonResponse("The flat application does not exist.", status=status.HTTP_404_NOT_FOUND, safe=False)
+            serializer = LazyFlatApplicationSerializer(flat_application, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST, safe=False)
+        else:
+            return JsonResponse('Flat Application ID not provided.', status=status.HTTP_400_BAD_REQUEST, safe=False)
+
+    @swagger_auto_schema(operation_description="Delete flat application",
+                            request_body=LazyFlatApplicationSerializer)  
+    def delete(self, request):
+        """Delete flat application"""
+        if "flat_application_id" in request.data:
+            try:
+                flat_application = LazyFlatApplication.objects.filter(flat_application_id=request.data["flat_application_id"]).select_related('renter_id', 'landlord_id').get()
+            except LazyFlatApplication.DoesNotExist:
+                return JsonResponse("The flat application does not exist.", status=status.HTTP_404_NOT_FOUND, safe=False)
+            flat_application.delete()
+            return JsonResponse("Flat application deleted successfully.", status=status.HTTP_204_NO_CONTENT, safe=False)
+        else:
+            return JsonResponse('Flat Application ID not provided.', status=status.HTTP_400_BAD_REQUEST, safe=False)
+        
     
+    class LazyFlatApplicationDashboardAPIView(APIView):
+        authentication_classes = [TokenAuthentication]
+        permission_classes = [IsAuthenticated]
+        serializer_class = LazyFlatApplicationDashboardSerializer
+        queryset = LazyFlatApplication.objects.all()
 
+        @swagger_auto_schema(operation_description="Retrieve flat application dashboard",
+                            request_body=LazyFlatApplicationDashboardSerializer)
+        def get(self, request):
+            """Retrieve flat application dashboard for user"""
+            lazy_user = LazyUser.objects.get(username=request.user)
+            lazy_user_profile = LazyUserProfile.objects.get(user=lazy_user)
+            try:
+                lazy_renter = LazyRenter.objects.get(profile_id=lazy_user_profile)
+                flat_applications = LazyFlatApplication.objects.filter(renter_id=lazy_renter).select_related('landlord_id')
+                serializer = LazyFlatApplicationDashboardSerializer(flat_applications, many=True)
+                return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
+            except LazyRenter.DoesNotExist:
+                return JsonResponse("No flat applications found for the user.", status=status.HTTP_404_NOT_FOUND, safe=False)
+            
+        @swagger_auto_schema(operation_description="Update flat application",
+                            request_body=LazyFlatApplicationDashboardSerializer)
+        def put(self, request):
+            """Update flat application"""
+            if "flat_application_id" in request.data:
+                try:
+                    flat_application = LazyFlatApplication.objects.get(flat_application_id=request.data["flat_application_id"]).select_related('renter_id', 'landlord_id')
+                except LazyFlatApplication.DoesNotExist:
+                    return JsonResponse("The flat application does not exist.", status=status.HTTP_404_NOT_FOUND, safe=False)
+                serializer = LazyFlatApplicationDashboardSerializer(flat_application, data=request.data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+                else:
+                    return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST, safe=False)
+            else:
+                return JsonResponse('Flat Application ID not provided.', status=status.HTTP_400_BAD_REQUEST, safe=False)
 
-
+        
