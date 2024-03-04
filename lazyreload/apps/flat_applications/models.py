@@ -4,7 +4,7 @@ from django.db import models
 class Landlord(models.Model):
     landlord_id = models.AutoField(primary_key=True)
     landlord_name = models.CharField(max_length=60, blank=True)
-    landlord_contact = models.EmailField(max_length=60, blank=True)
+    landlord_contact = models.CharField(max_length=200, blank=True)
     landlord_address = models.CharField(max_length=60, blank=True)
     landlord_phone = models.CharField(max_length=60, blank=True)
     landlord_notes = models.TextField(blank=True)
@@ -73,6 +73,7 @@ class LazyFlatApplication(models.Model):
 
     additional_notes = models.TextField(blank=True)
     flat_application_letter = models.TextField(blank=True)
+    flat_application_costs = models.FloatField(blank=True, null=True)
 
 
     def __str__(self):

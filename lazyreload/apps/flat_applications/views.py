@@ -178,9 +178,106 @@ class LazyFlatApplicationAPIView(APIView):
                          request_body=LazyFlatApplicationSerializer)
     def post(self, request):
         # instantiate scrape flat information class
-        flat_ad_info = FlatAdImporter(request.data['flat_ad_link']).retrieve_information()
-        print(flat_ad_info)
+        try:
+            flat_ad_importer = FlatAdImporter(request.data['flat_ad_link'])
+            flat_info = flat_ad_importer.retrieve_information()
+        except Exception as e:
+            print(f"Erro retrieving job information: {e}")
+            return JsonResponse(
+                {"error": "Error retrieving flat information"},
+                status=status.HTTP_400_BAD_REQUEST,
+                safe=False,
+            )
+        # Get LazyUser and LazyUserProfile instances associated with the request:
+        lazy_user = LazyUser.objects.get(username=request.user)
+        lazy_user_profile = LazyUserProfile.objects.get(user=lazy_user)
+        # Get LazyRenter instance
+        lazy_renter = LazyRenter.objects.get(profile_id=lazy_user_profile)
 
+        # Get Landlord instance or create if not exists
+        landlord, created = Landlord.objects.get_or_create(
+            landlord_name=flat_info['landlord_name'])
+        landlord_data = {}
+        if created:
+            landlord_data["landlord_address"] = flat_info.get('landlord_address', "Address not found")
+            landlord_data["landlord_contact"] = flat_info.get('landlord_contact', "Contact not found")
+        else:
+            landlord_data["landlord_address"] = flat_info.get('landlord_address', landlord.landlord_address)
+            landlord_data["landlord_contact"] = flat_info.get('landlord_contact', landlord.landlord_contact)
+        landlord_serializer = LandlordSerializer(data=landlord_data)
+        landlord_serializer.is_valid(raise_exception=True)
+        landlord_serializer.save()
+        landlord_data["landlord_name"] = flat_info['landlord_name']
+
+        # Create flat application - gather data to pass to Generator function
+        flat_application=LazyFlatApplication.objects.create(
+            renter_id=lazy_renter,
+            landlord_id=landlord,
+            flat_ad_link=request.data['flat_ad_link']
+        )
+        flat_application_data = {
+            "renter_id": lazy_renter,
+            "landlord_id": landlord,
+            "title": flat_info.get('title', "Title not found"),
+            "city": flat_info.get('city', "City not found"),
+            "postal_code": flat_info.get('postal_code', "Postal code not found"),
+            "district": flat_info.get('district', "District not found"),
+            "kaltmiete": flat_info.get('kaltmiete', "Kaltmiete not found"),
+            "deposit": flat_info.get('deposit', "Deposit not found"),
+            "apartment_size":flat_info.get('apartment_size'),
+            "rooms": flat_info.get('rooms', "Rooms not found"),
+            "extra_costs": flat_info.get('extra_costs', "Extra costs not found"),
+            "heating_costs": flat_info.get('heating_costs', "Heating costs not found"),
+            "total_cost": flat_info.get('total_cost', "Total cost not found"),
+            "additional_notes": flat_info.get('additional_notes', ""),
+        }
+        flat_application_serializer = LazyFlatApplicationSerializer(flat_application, data=flat_application_data )
+
+        lazy_renter_data = {
+            "first_name": lazy_renter.first_name, 
+            "last_name": lazy_renter.last_name,
+            "date_of_birth": lazy_renter.date_of_birth,
+            "renter_mail": lazy_renter.renter_mail,
+            "renter_phone": lazy_renter.renter_phone,
+            "current_address": lazy_renter.current_address,
+            "current_occupation": lazy_renter.current_occupation,
+            "net_income": lazy_renter.net_income,
+            "stable_income_available": lazy_renter.stable_income_available,
+            "guarantee_available": lazy_renter.guarantee_available,
+            "clean_schufa_report": lazy_renter.clean_schufa_report,
+            "references_available": lazy_renter.references_available,
+            "long_term_leasing_desire": lazy_renter.long_term_leasing_desire,
+            "quiet_and_tidy_tenant": lazy_renter.quiet_and_tidy_tenant,
+            "pets": lazy_renter.pets,
+            "type_of_pets": lazy_renter.type_of_pets,
+            "no_of_people": lazy_renter.no_of_people,
+            "children": lazy_renter.children,
+            "no_of_children": lazy_renter.no_of_children,
+        }
+        # Generate flat application letter
+        try:
+            load_dotenv()
+            OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+            flat_app_letter_gen = FlatApplicationLetterGenerator(
+                api_key=OPENAI_API_KEY,
+                flat_application_data=flat_application_data,
+                lazy_renter_data=lazy_renter_data,
+                landlord_data=landlord_data)
+        
+            flat_application_data["flat_application_letter"] = flat_app_letter_gen.generate_flat_application_letter()
+        except Exception:  # catch potential errors during application letter generation
+             return JsonResponse(
+                 {"error": "Failed to generate application letter"},
+                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                 safe=False
+             )
+
+        # flat_application_serializer.is_valid(raise_exception=True)
+        # flat_application_serializer.save(**flat_application_data)
+        return JsonResponse({"detail": f"Flat application created successfully,{landlord_serializer.data}"},
+            status=status.HTTP_201_CREATED,
+            safe=False)
+    
 
 
 
