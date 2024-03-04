@@ -1,8 +1,8 @@
-import openai
 import time
-from bs4 import BeautifulSoup
 import re
 import requests
+from bs4 import BeautifulSoup
+from openai import OpenAI
 
 
 class FlatAdImporter:
@@ -85,7 +85,7 @@ class FlatAdImporter:
         )
         for _ in range(13):
             extra_costs_element = extra_costs_element.next_element
-        data["extra_costs_value"] = extra_costs_element.text.strip() if extra_costs_element else "n/a"
+        data["extra_costs"] = extra_costs_element.text.strip() if extra_costs_element else "n/a"
 
         # Extracting the heating costs
         heating_costs_element = self.soup.find(
@@ -110,159 +110,173 @@ class FlatAdImporter:
 
 
 class FlatApplicationLetterGenerator:
-    def __init__(self, listing_info, full_name, date_of_birth, current_address, marital_status, current_occupation,
-                 monthly_income, stable_income_available, guarantee_available, clean_schufa_report, references_available,
-                 long_term_leasing_desire, quiet_and_tidy_tenant, pets, phone_number, email_address,
-                 quantity_of_children, quantity_of_people_moving_in, additional_notes, api_key):
-        self.listing_info = listing_info
-        self.full_name = full_name
-        self.date_of_birth = date_of_birth
-        self.current_address = current_address
-        self.marital_status = marital_status
-        self.current_occupation = current_occupation
-        self.monthly_income = monthly_income
-        self.stable_income_available = stable_income_available
-        self.guarantee_available = guarantee_available
-        self.clean_schufa_report = clean_schufa_report
-        self.references_available = references_available
-        self.long_term_leasing_desire = long_term_leasing_desire
-        self.quiet_and_tidy_tenant = quiet_and_tidy_tenant
-        self.pets = pets
-        self.phone_number = phone_number
-        self.email_address = email_address
-        self.quantity_of_children = quantity_of_children
-        self.quantity_of_people_moving_in = quantity_of_people_moving_in
-        self.additional_notes = additional_notes
-        self.api_key = api_key 
+    def __init__(self, api_key, flat_application_data, lazy_renter_data, landlord_data):
+        self.api_key = api_key
+        self.client = OpenAI(api_key=self.api_key)
+        self.flat_app_data = flat_application_data
+        self.lazy_renter_data = lazy_renter_data
+        self.landlord_data = landlord_data
 
     def generate_prompt(self):
-        return f"""
-        Schreibe eine Bewerbung für die Wohnung. Die Wohnung ist in {self.listing_info["City"]} und hat {self.listing_info["Rooms"]} Zimmer. 
-        Die Kaltmiete beträgt {self.listing_info["Kaltmiete"]} und die Wohnfläche beträgt {self.listing_info["Space"]}. 
-        Die Wohnung befindet sich in {self.listing_info["District"]} und hat eine Gesamtmiete von {self.listing_info["Total cost"]}. 
-        Wenn du etwas über {self.listing_info["District"]} in {self.listing_info["City"]} weißt, begründe warum du dort wohnen möchtest.
+        prompt = f"""
+        Entwerfe ein Anschreiben für eine Wohnungsbewerbung. 
+        Die Wohnung hat {self.flat_app_data["rooms"]} Zimmer und eine Wohnfläche von {self.flat_app_data["apartment_size"]}.
+        Die Kaltmiete beträgt {self.flat_app_data["kaltmiete"]},die Gesamtmiete von {self.flat_app_data["total_cost"]}.
+        Wenn du etwas über den Standort der Wohnung in {self.flat_app_data["district"]},{self.flat_app_data["city"]}, weißt, 
+        begründe warum du dort wohnen möchtest.
 
-        **Persönliche Informationen:**
-        - Vollständiger Name: {self.full_name}
-        - Geburtsdatum: {self.date_of_birth}
-        - Aktuelle Adresse: {self.current_address}
-        - Familienstand: {self.marital_status}
-        - Aktueller Beruf: {self.current_occupation}
-        - Monatliches Einkommen: {self.monthly_income} €
-        - Stabiles Einkommen verfügbar: {self.stable_income_available}
-        - Garantie verfügbar: {self.guarantee_available} (wenn ja, bitte angeben, ansonsten nicht)
-        - Saubere Schufa-Auskunft: {self.clean_schufa_report} (wenn ja, bitte angeben, ansonsten nicht)
-        - Referenzen von früheren Vermietern verfügbar: {self.references_available} (wenn ja, bitte angeben, ansonsten nicht)
-        - Wunsch nach einer langfristigen Mietbeziehung: {self.long_term_leasing_desire}
-        - Ruhiger und ordentlicher Mieter: {self.quiet_and_tidy_tenant} (wenn ja, bitte angeben, ansonsten nicht)
-        - Haustiere: {self.pets} (wenn ja, bitte angeben, ansonsten nicht)
-        - Telefonnummer: {self.phone_number}
-        - E-Mail-Adresse: {self.email_address}
-        - Anzahl der Kinder: {self.quantity_of_children} (wenn ja, bitte angeben, ansonsten schreib "keine")
-        - Anzahl der Personen, die einziehen: {self.quantity_of_people_moving_in} (anhand dessen schreibst du in ich oder wir Form)
-        - Zusätzliche Notizen: {self.additional_notes} (berücksichtige diese Notizen in der Bewerbung)
+        **Informationen zu Mietinteressenten:**
+        - Vollständiger Name: {self.lazy_renter_data["first_name"]} {self.lazy_renter_data["last_name"]}
+        - Geburtsdatum: {self.lazy_renter_data["date_of_birth"]}
+        - Aktuelle Adresse: {self.lazy_renter_data["current_address"]}
+        - Email: {self.lazy_renter_data["renter_mail"]}
+        - Beruf: {self.lazy_renter_data["current_occupation"]}
+        - Monatliches Netto-Einkommen: {self.lazy_renter_data["net_income"]} €"""
+        if self.lazy_renter_data["stable_income_available"]:
+            prompt += "\n- Gesichertes Einkommen verfügbar"
+        if self.lazy_renter_data["guarantee_available"]:
+            prompt += "\n- Bürgschaft verfügbar"
+        if self.lazy_renter_data["clean_schufa_report"]:
+            prompt += "\n- Saubere Schufa-Auskunft"
+        if self.lazy_renter_data["references_available"]:
+            prompt += "\n- Mietschuldenfreiheitsberscheinigung vorhanden"
+        if self.lazy_renter_data["long_term_leasing_desire"]:
+            prompt += "\n- Wunsch nach einer langfristing Anmietung"
+        else:
+            prompt += "\n- Wunsch nach einer kurz- bis mittelfrisitigen Anmietung"
+        if self.lazy_renter_data["quiet_and_tidy_tenant"]:
+            prompt += "\n- Ruhiger und ordentlicher Mieter"
+        if self.lazy_renter_data["children"] == True:
+            prompt += f"\n- Kinder : {self.lazy_renter_data['no_of_children']}"
+        else:
+            prompt += "\n- keine Kinder"
+        if self.lazy_renter_data["pets"] == True:
+            prompt += f"\n- Haustiere: {self.lazy_renter_data['type_of_pets']}"
+        else:
+            prompt += "\n- keine Haustiere"
+        prompt += f"""
+                \n- Anzahl der Personen, die einziehen: {self.lazy_renter_data['no_of_people']}"""
+        if self.flat_app_data["additional_notes"]:
+            prompt +=f"""Berücksichtige folgende Anmerkungen im Anschreiben: {self.flat_app_data["additional_notes"]}."""
+        prompt +=f"""    
+        Das Anschreiben für die Wohnungsbewerbung soll in deutscher Sprache verfasst werden.
+        Hier ist ein Beispiel für das gewünschte Format.
+        Berücksichtige die oben genannten Informationen und füge sie an den richtigen Stellen ein:
 
-        Die Bewerbung sollte in deutscher Sprache generiert werden.
+        [vollständiger Name]
+        [Adresse]
+        [Telefonnummer]
+        [Email]
 
-        hier ein Beispiel für die Bewerbung, solchen Format soll es haben, aber berücksichtige die oben genannten Informationen und füge die an richtigen Stellen ein:
+        Vermieter
+        {self.landlord_data['landlord_name']}
+        {self.landlord_data['landlord_contact']}
+        {self.landlord_data['landlord_address']}
 
-        {self.full_name}
-        {self.current_address}
-        Telefon: {self.phone_number}
-        E-Mail: {self.email_address}
 
-        Vermietungsagentur
-        z. H. Zuständige Person
-        Adresszusatz
+        <Heutiges Datum ergänzen>
 
-        <Datum>
-
-        Bewerbung für die {self.listing_info["Rooms"]}-Zimmer-Wohnung in {self.listing_info["City"]}
+        Bewerbung für die {self.flat_app_data["rooms"]} -Zimmer-Wohnung in {self.flat_app_data["city"]} 
 
         Sehr geehrte Damen und Herren,
-
-        { "ich" if self.quantity_of_people_moving_in == 1 else f"wir, Familie {self.full_name}," } möchten uns als Bewerber für die oben genannte Wohnung vorstellen. 
-        { "Ich bin" if self.quantity_of_people_moving_in == 1 else "Wir sind" } seit {self.current_occupation} berufstätig. 
-        { "Mein" if self.quantity_of_people_moving_in == 1 else "Unser" } gemeinsames Einkommen beträgt monatlich {self.monthly_income} € brutto. 
-        Gehaltsabrechnungen und Arbeitgeberbescheinigungen haben wir beigefügt.
-
-        {f'Wir haben {self.quantity_of_children} Kinder. {{...expandiere hier...}} Jetzt, da die Kinder größer sind und { "beide" if self.quantity_of_children > 1 else "ein" } eigenes Zimmer bekommen sollen, reicht der Platz in unserer derzeitigen Wohnung nicht mehr aus.' if self.quantity_of_children else ''}
-
-        Ihre ausgeschriebene {self.listing_info["Rooms"]}-Zimmer-Wohnung entspricht in Größe und Zuschnitt genau unseren Vorstellungen. {f' {self.additional_notes}.' if self.additional_notes else ''}
-
-        Wir freuen uns auf die Möglichkeit, die Wohnung persönlich zu besichtigen, und auf ein persönliches Gespräch.
-
-        Mit freundlichen Grüßen,
-        {self.full_name}
-
-        Anlagen:
-        - Gehaltsabrechnungen
-        {f'- SCHUFA-Auskunft' if self.clean_schufa_report else ''}
-        {f'- Mietschuldenfreiheitsbescheinigung' if self.references_available else ''}
-        {f'- Nachweis über Bürgschaft' if self.guarantee_available else ''}
         """
+        if self.lazy_renter_data['no_of_people'] == 1:
+            prompt += f"""
+            Ich, {self.lazy_renter_data["first_name"]} {self.lazy_renter_data["last_name"]} möchte mich für die oben genannte Wohnung bewerben und mich kurz vorstellen.
+            Ich bin als  {self.lazy_renter_data["current_occupation"]} beschäftigt und verfüge über ein Nettoeinkommen von monatlich {self.lazy_renter_data["net_income"]} €
+            Die Gehaltsabrechnungen habe ich beigefügt
+                        """
+        else:
+            prompt += f"""
+            Wir, Familie {self.lazy_renter_data["last_name"]} möchten uns für die oben genannte Wohnung bewerben und uns kurz vorstellen.
+            Wir sind als {self.lazy_renter_data["current_occupation"]} beschäftigt und verfügen über ein gemeinsames Nettoeinkommen von monatlich {self.lazy_renter_data["net_income"]} €
+            Die Gehaltsabrechnungen haben wir beigefügt
+            """
+            if self.lazy_renter_data['no_of_children']>0:
+                prompt+=f"""
+                Wir haben {self.lazy_renter_data['no_of_children']} Kinder. {{...expandiere hier...}} 
+                Jetzt, da das/die Kind(er) größer sind und ein eigenes Zimmer bekommen sollen, 
+                reicht der Platz in unserer derzeitigen Wohnung nicht mehr aus.
+                """
+        
+        prompt +=f"""
+            Die angebotene {self.flat_app_data["rooms"]}-Zimmer-Wohnung entspricht in Größe, Schnitt und Lage genau meinen/unseren Vorstellungen. 
+            {self.flat_app_data["additional_notes"] if self.flat_app_data["additional_notes"] else ""}
+            Ich/Wir freuen uns auf die Möglichkeit, die Wohnungzu besichtigen und ein persönliches Gespräch.
 
+            Mit freundlichen Grüßen,
+            {self.lazy_renter_data["first_name"]} {self.lazy_renter_data["last_name"]}
+
+            Anlagen:
+            - Gehaltsabrechnungen
+            {'- SCHUFA-Auskunft' if self.lazy_renter_data["clean_schufa_report"] == True else ''}
+            {'- Mietschuldenfreiheitsbescheinigung' if self.lazy_renter_data["references_available"] else ''}
+            {'- Nachweis über Bürgschaft' if self.lazy_renter_data["guarantee_available"] else ''}
+            """
+
+        return prompt
+    
     def generate_flat_application_letter(self):
         start_time = time.time()
-
-        response = openai.ChatCompletion.create(
+    
+        prompt = self.generate_prompt()
+        
+        response = self.client.chat.completions.create(
             model="gpt-4",
             messages=[
                 {
                     "role": "system",
-                    "content": "Du bist ein KI Assistent, der eine Bewerbung für eine Wohnung schreibt.",
+                    "content": "Du bist ein hilfreicher KI Assistent, der eine Bewerbung für eine Wohnung schreibt.",
                 },
-                {"role": "user", "content": self.generate_prompt()},
+                {"role": "user", "content": prompt},
             ],
         )
 
         end_time = time.time()
         elapsed_time = end_time - start_time
         print(f"\nTime Consumed: {elapsed_time:.2f} seconds")
+        flat__application_letter = response.choices[0].message.content.strip()
+        
+        return flat__application_letter
 
-        cover_letter = response["choices"][0]["message"]["content"].strip()
-        print(cover_letter)
-        return cover_letter
+# if __name__ == "__main__":
+#     # Replace "YOUR_API_KEY" with your actual OpenAI API key
+#     openai.api_key = ""
 
-if __name__ == "__main__":
-    # Replace "YOUR_API_KEY" with your actual OpenAI API key
-    openai.api_key = ""
+#     """# Example usage
+#     user_criteria = {
+#         "full_name": "Max Mustermann",
+#         "date_of_birth": "1990-01-01",
+#         "current_address": "Musterstraße 1",
+#         "marital_status": "Single",
+#         "current_occupation": "Software Developer",
+#         "monthly_income": 3000,
+#         "stable_income_available": True,
+#         "guarantee_available": False,
+#         "clean_schufa_report": True,
+#         "references_available": True,
+#         "long_term_leasing_desire": True,
+#         "quiet_and_tidy_tenant": True,
+#         "pets": False,
+#         "phone_number": "0123456789",
+#         "email_address": "max.mustermann@example.com",
+#         "quantity_of_children": 2,
+#         "quantity_of_people_moving_in": 4,
+#         "additional_notes": "We are a quiet and responsible family looking for a suitable place to live."
+#     }
 
-    """# Example usage
-    user_criteria = {
-        "full_name": "Max Mustermann",
-        "date_of_birth": "1990-01-01",
-        "current_address": "Musterstraße 1",
-        "marital_status": "Single",
-        "current_occupation": "Software Developer",
-        "monthly_income": 3000,
-        "stable_income_available": True,
-        "guarantee_available": False,
-        "clean_schufa_report": True,
-        "references_available": True,
-        "long_term_leasing_desire": True,
-        "quiet_and_tidy_tenant": True,
-        "pets": False,
-        "phone_number": "0123456789",
-        "email_address": "max.mustermann@example.com",
-        "quantity_of_children": 2,
-        "quantity_of_people_moving_in": 4,
-        "additional_notes": "We are a quiet and responsible family looking for a suitable place to live."
-    }
+#     listing_info = {
+#         "Title": "++ Sehr helle 2-Zimmer-Wohnung im grünen Wandsbek ++",
+#         "City": "Hamburg",
+#         "Postal Code": 22041,
+#         "District": "Wandsbek",
+#         "Kaltmiete": "549 €",
+#         "Space": "47 m²",
+#         "Deposit": "1647,00 €",
+#         "Rooms": 2,
+#         "Extra costs": "140 €",
+#         "Heating costs": "Heizkosten in Nebenkosten enthalten",
+#         "Total cost": "689 €"
+#     }"""
 
-    listing_info = {
-        "Title": "++ Sehr helle 2-Zimmer-Wohnung im grünen Wandsbek ++",
-        "City": "Hamburg",
-        "Postal Code": 22041,
-        "District": "Wandsbek",
-        "Kaltmiete": "549 €",
-        "Space": "47 m²",
-        "Deposit": "1647,00 €",
-        "Rooms": 2,
-        "Extra costs": "140 €",
-        "Heating costs": "Heizkosten in Nebenkosten enthalten",
-        "Total cost": "689 €"
-    }"""
 
-    generator = FlatApplicationLetterGenerator(listing_info=listing_info, **user_criteria)
-    generated_flat_letter = generator.generate_flat_application_letter()

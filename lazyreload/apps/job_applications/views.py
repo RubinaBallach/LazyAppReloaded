@@ -34,9 +34,9 @@ class LazyJobApplicationAPIView(APIView):
             job_scraper = JobAdImporter(request.data["ad_link"])
             info = job_scraper.retrieve_information()
         except Exception as e:
-            print(f"Error scraping job information: {e}")
+            print(f"Error retrieving job information: {e}")
             return JsonResponse(
-                {"error": "Failed to scrape job information"},
+                {"error": "Failed to retrieve job information"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 safe=False,
             )
@@ -90,7 +90,6 @@ class LazyJobApplicationAPIView(APIView):
             data["cover_letter"] = cover_letter
             serializer.save(**data) # save all data at once
         except Exception as e:  # Catch potential errors during cover letter generation
-            print(f"Error generating cover letter: {e}")
             return JsonResponse(
                 {"error": "Failed to generate cover letter"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,

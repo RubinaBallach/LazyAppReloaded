@@ -4,6 +4,7 @@ from .models import LazyFlatApplication, LazyRenter, Landlord
 
 class LandlordSerializer(serializers.ModelSerializer):
     landlord_id = serializers.IntegerField(read_only=True)
+    landlord_contact = serializers.CharField(max_length=200, required=False)
     class Meta:
         model = Landlord
         fields = '__all__'
