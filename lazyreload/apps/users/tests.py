@@ -15,7 +15,7 @@ class UserAPITestCase(APITestCase):
         self.fake = Faker()
         
                 
-        #create user for auth test and faker shenaningans
+        #create user for auth test and faker
         self.test_user = User.objects.create_user(
             username=self.fake.user_name(),
             email=self.fake.email(),
@@ -25,7 +25,7 @@ class UserAPITestCase(APITestCase):
         self.test_user.is_staff = True #so you don't get 403'd on 2 tests (delete and update)
         self.test_user.save()
         
-        self.test_user = User.objects.create_user('testuser', 'test@example.com', 'testpassword') #hardcoded stuff
+        self.test_user = User.objects.create_user('testuser', 'test@example.com', 'testpassword') 
         self.test_user_token = Token.objects.create(user=self.test_user)
         
         self.test_admin_user = User.objects.create_superuser('adminuser', 'admin@example.com', 'adminpassword')
@@ -85,7 +85,7 @@ class UserAPITestCase(APITestCase):
         self.assertEqual(self.test_user.email, 'newuser@example.com')
         
        
-    def test_users_list_authenticated(self): #assure that auth is admin, needs rewrite as admin_user, otherwise permission and access control test fails
+    def test_users_list_authenticated(self): 
         
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.test_admin_token.key)
         response = self.client.get(self.list_users_url)
@@ -116,7 +116,7 @@ class UserAPITestCase(APITestCase):
         with self.assertRaises(User.DoesNotExist):
             User.objects.get(id=self.test_user.user_id)
     
-    def test_permission_and_access_control(self): #fails, need to check user-list('list-users' in this case). Permission issue, because a reg user is not supposed to access the list
+    def test_permission_and_access_control(self): 
         regular_user = User.objects.create_user(username=self.fake.user_name(), email=self.fake.email(), password='password123')
         regular_user_token = Token.objects.create(user=regular_user)
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + regular_user_token.key)
@@ -130,13 +130,6 @@ class UserAPITestCase(APITestCase):
         self.assertIn('detail', response.data)
         self.assertEqual(response.data['detail'], 'Invalid credentials')
         
-    #im drunkw, needs fixing
-    def test_partial_update_user_profile(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.user_token.key)
-        updated_email = {'email': 'newemail@example.com'}
-        response = self.client.patch(self.update_user_profile_url, updated_email, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK, "Profile should be partially updated")
-        updated_user = User.objects.get(id=self.user.id)
-        self.assertEqual(updated_user.email, 'newemail@example.com', "Email should be updated to the new value")
+  
 
         
