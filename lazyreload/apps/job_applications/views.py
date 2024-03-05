@@ -98,7 +98,7 @@ class LazyJobApplicationAPIView(APIView):
 
     @swagger_auto_schema(operation_description="Retrieve a job application", request_body=LazyJobApplicationSerializer)
     def get(self, request):
-        """Get a specific job application or all job applications."""
+        """Get a specific job application."""
         if "lazy_application_id" in request.data:
             # Retrieve a specific job application
             try:

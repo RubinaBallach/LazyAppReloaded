@@ -32,12 +32,12 @@ class UserAPITestCase(APITestCase):
         self.test_admin_user = User.objects.create_superuser('adminuser', 'admin@example.com', 'adminpassword')
         self.test_admin_token = Token.objects.create(user=self.test_admin_user)
         
-        self.create_user_url = reverse('create-user')
-        self.login_url = reverse('login')
-        self.list_users_url = reverse('list-users')      
+        self.create_user_url = reverse('users:register')
+        self.login_url = reverse('users:login')
+        self.list_users_url = reverse('users:list-users')      
         
-        self.user_profile_url = reverse('user-profile', kwargs={'user_id': self.test_user.user_id})
-        self.update_user_url = reverse('update-user', kwargs={'user_id': self.test_user.user_id})
+        self.user_profile_url = reverse('users:userprofile', kwargs={'user_id': self.test_user.user_id})
+        self.update_user_url = reverse('users:update-user', kwargs={'user_id': self.test_user.user_id})
 
 
     def test_create_user_success(self):
@@ -120,13 +120,13 @@ class UserAPITestCase(APITestCase):
         regular_user = User.objects.create_user(username=self.fake.user_name(), email=self.fake.email(), password='password123')
         regular_user_token = Token.objects.create(user=regular_user)
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + regular_user_token.key)
-        response = self.client.get(reverse('list-users'))
+        response = self.client.get(reverse('users:list-users'))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN, msg="Regular user should not access user list")
         
     def test_login_with_wrong_password(self):
         user = User.objects.create(username=self.fake.user_name(), email=self.fake.email(), password='correctpassword')
         payload = {'username': user.username, 'password': 'wrongpassword'}
-        response = self.client.post(reverse('login'), payload, format='json')
+        response = self.client.post(reverse('users:login'), payload, format='json')
         self.assertIn('detail', response.data)
         self.assertEqual(response.data['detail'], 'Invalid credentials')
                                                 
