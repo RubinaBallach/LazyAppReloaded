@@ -1,2 +1,2 @@
-  python-3.x
+  python-3.11
   gunicorn lazyreload:lazyreload.wsgi-b :8000
