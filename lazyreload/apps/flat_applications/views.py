@@ -19,8 +19,7 @@ class LazyRenterAPIView(APIView):
     serializer_class = LazyRenterSerializer
     queryset = LazyRenter.objects.all()
   
-    @swagger_auto_schema(operation_description="Retrieve renter profile",
-                         request_body=LazyRenterSerializer)
+
     def get_object(self):
         lazyrenter, created = LazyRenter.objects.get_or_create(
             profile_id=self.request.profile_id)
@@ -50,8 +49,7 @@ class LazyRenterAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
   
-    @swagger_auto_schema(operation_description="Retrieve renter profile",
-                         request_body=LazyRenterSerializer)
+
     def get(self, request):
         if "renter_id" in request.data:
             try:
@@ -108,8 +106,7 @@ class LandlordAPIView(APIView):
     serializer_class = LandlordSerializer
     queryset = Landlord.objects.all()
     
-    @swagger_auto_schema(operation_description="Retrieve landlord profile",
-                         request_body=LandlordSerializer)
+
     def get(self, request):
         if "landlord_id" in request.data:
             try:
@@ -167,8 +164,7 @@ class LazyFlatApplicationAPIView(APIView):
     serializer_class = LazyFlatApplicationSerializer
     queryset = LazyFlatApplication.objects.all()
 
-    @swagger_auto_schema(operation_description="Retirieve flat application",
-                         request_body=LazyFlatApplicationSerializer)
+  
     def get_object(self):
         flat_application, created = LazyFlatApplication.objects.get_or_create(
             flat_application_id=self.request.flat_application_id)
@@ -277,8 +273,7 @@ class LazyFlatApplicationAPIView(APIView):
         return JsonResponse(flat_application_serializer.data,
             status=status.HTTP_201_CREATED, safe=False)
 
-    @swagger_auto_schema(operation_description="Retrieve flat application",
-                            request_body=LazyFlatApplicationSerializer)
+
     def get(self, request):
         """Retrieve specfic flat applications or all flat applications"""
         if "flat_application_id" in request.data:
@@ -332,8 +327,7 @@ class LazyFlatApplicationAPIView(APIView):
         serializer_class = LazyFlatApplicationDashboardSerializer
         queryset = LazyFlatApplication.objects.all()
 
-        @swagger_auto_schema(operation_description="Retrieve flat application dashboard",
-                            request_body=LazyFlatApplicationDashboardSerializer)
+
         def get(self, request):
             """Retrieve flat application dashboard for user"""
             lazy_user = LazyUser.objects.get(username=request.user)
