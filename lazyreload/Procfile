@@ -1,0 +1,1 @@
+web: python3 manage.py migrate --settings=lazyreload.settings.prod && gunicorn lazyreload.wsgi --env DJANGO_SETTINGS_MODULE=lazyreload.settings.prod
