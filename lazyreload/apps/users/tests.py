@@ -12,29 +12,12 @@ User = get_user_model()
 class UserAPITestCase(APITestCase):
     
     def setUp(self):
-        self.fake = Faker()
-        
-                
-        #create user for auth test and faker
-        self.test_user = User.objects.create_user(
-            username=self.fake.user_name(),
-            email=self.fake.email(),
-            password='testpassword'
-        )
-        
-        self.test_user.is_staff = True #so you don't get 403'd on 2 tests (delete and update)
-        self.test_user.save()
-        
-        self.test_user = User.objects.create_user('testuser', 'test@example.com', 'testpassword') 
+        #create user for auth test
+        self.test_user = User.objects.create_user('testuser', 'test@example.com', 'testpassword')
         self.test_user_token = Token.objects.create(user=self.test_user)
-        
-        self.test_admin_user = User.objects.create_superuser('adminuser', 'admin@example.com', 'adminpassword')
-        self.test_admin_token = Token.objects.create(user=self.test_admin_user)
-        
         self.create_user_url = reverse('create-user')
         self.login_url = reverse('login')
-        self.list_users_url = reverse('list-users')      
-        
+        self.list_users_url = reverse('list-users')
         self.user_profile_url = reverse('user-profile', kwargs={'user_id': self.test_user.user_id})
         self.update_user_url = reverse('update-user', kwargs={'user_id': self.test_user.user_id})
 
@@ -85,9 +68,9 @@ class UserAPITestCase(APITestCase):
         self.assertEqual(self.test_user.email, 'newuser@example.com')
         
        
-    def test_users_list_authenticated(self): 
+    def test_users_list_authenticated(self):
         
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.test_admin_token.key)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.test_user_token.key)
         response = self.client.get(self.list_users_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
@@ -110,7 +93,7 @@ class UserAPITestCase(APITestCase):
     def test_delete_user(self):
         
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.test_user_token.key)
-        delete_url = reverse('delete-user', kwargs={'user_id': self.test_user.user_id})
+        delete_url = reverse('users:delete-user', kwargs={'user_id': self.test_user.user_id})
         response = self.client.delete(delete_url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         with self.assertRaises(User.DoesNotExist):

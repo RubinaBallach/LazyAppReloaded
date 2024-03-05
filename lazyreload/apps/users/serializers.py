@@ -83,8 +83,9 @@ class LazyUserSerializer(serializers.ModelSerializer):
 
 
 class LazyLoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    password = serializers.CharField(write_only=True)
+
+    username = serializers.CharField(required= False)
+    password = serializers.CharField(write_only=True, required=False)
 
 
 class LazyUpdateUserSerializer(serializers.ModelSerializer):
@@ -94,6 +95,7 @@ class LazyUpdateUserSerializer(serializers.ModelSerializer):
 
 
 class LazyUserProfileSerializer(serializers.ModelSerializer):
+    lazy_user_id = serializers.UUIDField(source="user.user_id", read_only=True)
     use_case = serializers.CharField(max_length=60, required=True)
     cv_file = serializers.FileField(
         required=True,
@@ -122,4 +124,4 @@ class LazyUserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LazyUserProfile
-        fields = ["use_case", "cv_file", "email", "cv_text"]
+        fields = ["use_case", "cv_file", "email", "cv_text", "lazy_user_id"]
