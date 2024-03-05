@@ -32,3 +32,13 @@ openai==1.12.0
 pypdf==4.0.2
 Faker==23.3.0
 python-dotenv==1.0.1
+
+### requirements for production
+
+# Packkages for hosting
+gunicorn==21.2.0
+# url to connect to the database.
+dj-database-url==2.1.0
+
+#help for starting file
+whitenoise==6.6.0
