@@ -21,7 +21,7 @@ class LazyJobApplicationAPIView(APIView):
     serializer_class = LazyJobApplicationSerializer
     queryset = LazyJobApplication.objects.all()
 
-    @swagger_auto_schema(operation_description="Retrieve job application",request_body=LazyJobApplicationSerializer)
+
     def get_object(self):
         job_application, created = LazyJobApplication.objects.get_or_create(lazy_application_id=self.request.lazy_application_id)
         return job_application
@@ -96,7 +96,7 @@ class LazyJobApplicationAPIView(APIView):
                 safe=False)
         return JsonResponse(serializer.data, status=status.HTTP_201_CREATED, safe=False)
 
-    @swagger_auto_schema(operation_description="Retrieve a job application", request_body=LazyJobApplicationSerializer)
+
     def get(self, request):
         """Get a specific job application."""
         if "lazy_application_id" in request.data:
@@ -155,7 +155,7 @@ class LazyJobApplicationDashboardAPIView(APIView):
     serializer_class = LazyJobApplicationDashboardSerializer
     queryset = LazyJobApplication.objects.all()
 
-    @swagger_auto_schema(operation_description="Retrieve job applications", request_body=LazyJobApplicationDashboardSerializer)
+
     def get(self, request):
         """Get all job applications for the user."""
         lazy_user = LazyUser.objects.get(username=request.user)
@@ -192,7 +192,7 @@ class CompanyAPIView(APIView):
     serializer_class = CompanySerializer
     queryset = Company.objects.all()
 
-    @swagger_auto_schema(operation_description="Retrieve company or companies", request_body=CompanySerializer)
+
     def get(self,request):
         if "company_id" in request.data:
             try:
