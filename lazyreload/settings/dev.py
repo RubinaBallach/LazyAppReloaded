@@ -30,7 +30,7 @@ POSTGRES_PW = os.getenv("POSTGRES_PW")
 SECRET_KEY = "django-insecure-@!%hovkd#!o94$g@wuszl5g0(*c6j6a&ju78&5$8zx88sz%1#8"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["127.0.0.1",]
 
