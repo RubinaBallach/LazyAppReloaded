@@ -47,7 +47,7 @@ class CreateUserAPI(APIView):
                 serializer = LazyUserSerializer(user)
                 return JsonResponse(serializer.data, status=201)
             else:
-                return HttpResponseRedirect(reverse('userprofile'))
+                return HttpResponseRedirect(reverse('users:userprofile', kwargs={'user_id': user.pk}))
 
         # Form is not valid
         errors = form.errors
@@ -157,8 +157,8 @@ class LazyDeleteUserAPIView(APIView):
 class UserListView(ListAPIView):
     queryset = LazyUser.objects.all()
     serializer_class = LazyUserSerializer
-    permission_classes = [IsAdminUser]
-
+    permission_classes = [IsAdminUser] #need to be active for permission access control test, otherwise the test fails (403 expected but 200 gets returned resulting in F)
+    
 
 class LazyUserProfileView(generics.RetrieveUpdateAPIView):
     authentication_classes = [TokenAuthentication]

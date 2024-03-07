@@ -23,7 +23,7 @@
                 <input type="password" name="password" placeholder="Password"required><br>
             </div>   
             <button type="submit" class="login-button" onclick="performLogin()"><a href="{% url 'login' %}"></a>Login</button>
-            <div class="signup_link">Not a member? <a href="{% url 'register' %}">Sign Up</a></div>
+            <div class="signup_link">Not a member? <a href="{% url 'users:register' %}">Sign Up</a></div>
         </form>
     </div>
     <script>

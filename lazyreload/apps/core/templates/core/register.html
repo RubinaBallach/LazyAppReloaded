@@ -17,7 +17,7 @@
                 const formData = new FormData(form);
 
                 // Send a POST request to the registration URL
-                fetch('{% url "register" %}', {
+                fetch('{% url "users:register" %}', {
                     method: 'POST',
                     headers: {
                         'X-CSRFToken': '{{ csrf_token }}',
@@ -35,17 +35,17 @@
                     console.log(data);
 
                     // Redirect to the login page ****
-                    window.location.href = '{% url "login" %}';
+                    window.location.href = '{% url "users:login" %}';
                 })
                 .catch(error => {
                     // Handle registration failure
                     console.error(error.message);
                 });
 
-                fetch('{% url "login" %}')
+                fetch('{% url "users:login" %}')
                     .then(response => response.text())
                     .then(htmlContent => {
-                    window.location.href = '{% url "login" %}'; // Redirect to the URL
+                    window.location.href = '{% url "users:login" %}'; // Redirect to the URL
                 })
                 .catch(error => {
                     console.error(error);
@@ -55,7 +55,7 @@
     </script>
 </head>
 <body>
-    <form id="registrationForm" method="post" action="{% url 'register' %}">
+    <form id="registrationForm" method="post" action="{% url 'users:register' %}">
         {% csrf_token %}
         <div class="wrapper">
             <div class="signup">
