@@ -46,12 +46,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     # third party apps
+    # third party apps
     "rest_framework",
     "django_extensions",
     "rest_framework.authtoken",
     "drf_yasg",
-    "drf_multiple_model",
-
 
 
     # project apps
@@ -188,11 +187,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':[
 
         'rest_framework.authentication.TokenAuthentication',
-        #'rest_framework.authentication.SessionAuthentication',
-    ],
-}
-
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=20)
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
+    ]
 }
 

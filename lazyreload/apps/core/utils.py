@@ -103,6 +103,24 @@ class CoverLetterGenerator:
                     CV:\n{self.cv_extract}\n\nJob Description:\n{self.job_extract}. 
                     The applicant is looking for a {self.job_type} position 
                     and is avaiable from {self.availability}.
+
+                    Generate application letter in language of Job Description(if job description is in German, letter should be in German).
+
+                    Carefully consider following:
+                    - Salary expectation: {self.salary_expectation}
+                    - Highlight: {self.to_highlight}
+                    
+                    Please only consider the most relevant information from the CV and Job Description. Double check to dont make things up.
+
+                    Use the best job applying language and make sure to adapt the wording to the job the user wants to apply for and provide additional information on companies and competitive market salaries. 
+
+
+                    Do not repeat yourself by starting alamost every sentence with "I am" or "I have". Be creative and use synonyms. It is very importnat
+
+                    Write the letter in a professional and polite manner.
+                    
+                    The letter should be around 300 words.
+
                     """
         if self.salary_expectation != 0:
             prompt += f"""The salary expectation is {self.salary_expectation} per year."""
@@ -114,11 +132,11 @@ class CoverLetterGenerator:
 
         # Make a request to the API using v1/chat/completions
 
-        response = self.client.chat.completions.create(model="gpt-4",
+        response = self.client.chat.completions.create(model="gpt-4-1106-preview",
         messages=[
             {
                 "role": "system",
-                "content": "You are an AI assistant that helps users generate application letters.",
+                "content": "You are an AI assistant that helps users generate application letters.ou are a helpful expert for jobsearch and application. You adapt the wording in regards to the job the user wants to apply for and provide additional information on companies",
             },
             {"role": "user", "content": prompt},
         ])
