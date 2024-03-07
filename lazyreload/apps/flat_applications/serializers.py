@@ -1,14 +1,21 @@
 from rest_framework import serializers
-from .models import FlatApplication, FlatListing
+from .models import LazyFlatApplication, LazyRenter, Landlord
 
 
-# hope it is right so
-class FlatApplicationSerializer(serializers.ModelSerializer):
+class LandlordSerializer(serializers.ModelSerializer):
+    landlord_id = serializers.IntegerField(read_only=True)
     class Meta:
-        model = FlatApplication
+        model = Landlord
         fields = '__all__'
 
-class FlatListingSerializer(serializers.ModelSerializer):
+class LazyRenterSerializer(serializers.ModelSerializer):
+    profile_id = serializers.PrimaryKeyRelatedField(read_only=True)
     class Meta:
-        model = FlatListing
+        model = LazyRenter
+        fields = '__all__'
+
+
+class LazyFlatApplicationSerializer(serializers.Serializer):
+    class Meta:
+        model = LazyFlatApplication
         fields = '__all__'
